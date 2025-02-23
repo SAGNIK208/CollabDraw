@@ -1,20 +1,52 @@
 import { z } from "zod";
+import {shapes} from "@repo/db/client";
 
 export const CreateUserSchema = z.object({
-    username: z.string()
-        .min(3,"username must be 8 characters long")
-        .max(20,"username can have maximum 20 characters"),
-    email: z.string()
-        .email(),
-    password: z.string()
-        .min(6,"Password must have minimum length of 6")
-        .max(20,"Password can have a maximum length of 20")
-        .regex(/[A-Z]/,"Password must have one character in uppercase")
-        .regex(/[a-z]/,"Password must have one character in lowercase")
-        .regex(/[0-9]/,"Password must have ond digit")
+  username: z
+    .string()
+    .min(3, "username must be 8 characters long")
+    .max(20, "username can have maximum 20 characters"),
+  email: z.string().email(),
+  password: z
+    .string()
+    .min(6, "Password must have minimum length of 6")
+    .max(20, "Password can have a maximum length of 20")
+    .regex(/[A-Z]/, "Password must have one character in uppercase")
+    .regex(/[a-z]/, "Password must have one character in lowercase")
+    .regex(/[0-9]/, "Password must have ond digit"),
 });
 
 export const SignupSchema = z.object({
-    email: z.string(),
-    password: z.string()
+  email: z.string(),
+  password: z.string(),
 });
+
+const pointSchema = z.object({ x: z.number(), y: z.number() });
+
+export const CreateRoomSchema = z.object({
+  name: z
+    .string()
+    .min(3, "Room Name must be 3 characters long")
+    .max(20, "Room Name can have maximum length of 20 characters"),
+});
+
+export const CreateCanvasElementSchema = z.object({
+  type: z.nativeEnum(shapes),
+  x: z.number().nullable(),
+  y: z.number().nullable(),
+  width: z.number().nullable(),
+  height: z.number().nullable(),
+  stroke: z.string(),
+  fill: z.string().nullable(),
+  stroke_width: z.number(),
+  font_size: z.number().nullable(),
+  text: z.string().nullable(),
+  points: z
+  .string(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
+});
+
+
+
+export {z};

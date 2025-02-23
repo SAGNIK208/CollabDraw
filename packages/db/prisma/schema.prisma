@@ -13,10 +13,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id       String @id @default(uuid())
+  username String
+  password String
+  email    String @unique
+  rooms    Room[]
+  canvas   CanvasElement[]
+}
 
-model User{
-  id         String     @id @default(uuid())
-  username   String
-  password   String
-  email      String     @unique
+model Room {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  adminId   String
+  admin     User     @relation(fields: [adminId], references: [id])
+  canvas    CanvasElement[]
+} 
+
+enum Shapes {
+  RECTANGLE
+  ELLIPSE
+  LINE
+  ARROW
+  TEXT
+}
+
+model CanvasElement {
+  id          Int      @id @default(autoincrement())
+  roomId      Int      
+  userId      String      
+  type        Shapes
+  x           Float?
+  y           Float?
+  width       Float?
+  height      Float?
+  stroke      String?  
+  fill        String?  
+  strokeWidth Int?       
+  fontSize    Int?       
+  text        String?  
+  points      Json?     
+  createdAt   DateTime   @default(now()) 
+  updatedAt   DateTime   @updatedAt
+  room        Room       @relation(fields: [roomId],references: [id])
+  user        User       @relation(fields: [userId],references: [id])
 }

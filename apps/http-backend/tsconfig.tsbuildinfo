@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/constants/request.ts","./src/exceptions/customerror.ts","./src/middlewares/index.ts","./src/routes/authroutes.ts","./src/types/type.ts"],"version":"5.7.3"}
+{"root":["./src/index.ts","./src/constants/request.ts","./src/exceptions/customerror.ts","./src/middlewares/index.ts","./src/routes/authroutes.ts","./src/routes/roomroutes.ts","./src/types/type.ts"],"version":"5.7.3"}
