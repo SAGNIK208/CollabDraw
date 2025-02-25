@@ -104,8 +104,8 @@ class WebSocketServerManager{
         if(!this.rooms.has(roomId)) return;
         let users : Set<WebSocket>  = this.rooms.get(roomId)!;
         for(const user of users){
-            if(user!=ws){
-                ws.send(JSON.stringify(data));
+            if(user!==ws){
+                user.send(JSON.stringify(data));
             }
         }
     }
@@ -120,6 +120,7 @@ class WebSocketServerManager{
     private async handleElement(ws:WebSocket,data:JSON,roomId:number,userId:string){
         const parsedData = CreateCanvasElementSchema.safeParse(data);
         if(!parsedData.success){
+            console.log(parsedData.error.flatten().fieldErrors)
             this.disconnect(ws,roomId);
             return;
         }

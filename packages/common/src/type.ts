@@ -21,14 +21,15 @@ export const SignupSchema = z.object({
   password: z.string(),
 });
 
-const pointSchema = z.object({ x: z.number(), y: z.number() });
 
 export const CreateRoomSchema = z.object({
   name: z
-    .string()
-    .min(3, "Room Name must be 3 characters long")
-    .max(20, "Room Name can have maximum length of 20 characters"),
+  .string()
+  .min(3, "Room Name must be 3 characters long")
+  .max(20, "Room Name can have maximum length of 20 characters"),
 });
+
+const pointSchema = z.object({ x: z.number(), y: z.number() });
 
 export const CreateCanvasElementSchema = z.object({
   type: z.nativeEnum(shapes),
@@ -38,13 +39,10 @@ export const CreateCanvasElementSchema = z.object({
   height: z.number().nullable(),
   stroke: z.string(),
   fill: z.string().nullable(),
-  stroke_width: z.number(),
-  font_size: z.number().nullable(),
+  strokeWidth: z.number(),
+  fontSize: z.number().nullable(),
   text: z.string().nullable(),
-  points: z
-  .string(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
+  points: z.array(pointSchema),
 });
 
 
