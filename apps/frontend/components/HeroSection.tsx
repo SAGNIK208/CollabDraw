@@ -1,11 +1,12 @@
 import React from "react";
 import { Button } from "@repo/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 
 type HeroProps = {
   title: string;
   subtitle: string;
-  primaryAction: { label: string; onClick: () => void };
+  primaryAction: { label: string; href:string };
   secondaryAction?: { label: string; onClick: () => void };
 };
 
@@ -16,7 +17,9 @@ export const HeroSection: React.FC<HeroProps> = ({ title, subtitle, primaryActio
           <h1 className="text-6xl font-bold text-gray-900 leading-tight">{title}</h1>
           <p className="text-xl text-gray-700 mt-6">{subtitle}</p>
           <div className="mt-8 flex gap-6">
-            <Button label={primaryAction.label} onClick={primaryAction.onClick} variant="primary" />
+          <Link href={primaryAction.href}>
+              <Button label={primaryAction.label} variant="primary" />
+            </Link>
             {secondaryAction && <Button label={secondaryAction.label} onClick={secondaryAction.onClick} variant="outline" />}
           </div>
         </div>

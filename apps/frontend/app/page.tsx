@@ -4,7 +4,6 @@ import React from "react";
 import { Layout } from "../components/Layout";
 import { HeroSection } from "../components/HeroSection";
 import { Card } from "@repo/ui/card";
-import { Footer } from "@repo/ui/footer";
 import { Users, Brush, Star, Share2 } from "lucide-react";
 
 export default function Home() {
@@ -13,7 +12,7 @@ export default function Home() {
       <HeroSection
         title="Collaborate in real-time with CollabDraw!"
         subtitle="A powerful online whiteboard for seamless teamwork and creativity."
-        primaryAction={{ label: "Get Started", onClick: () => alert("Getting Started") }}
+        primaryAction={{ label: "Get Started", href: "/signup" }}
         secondaryAction={{ label: "Try now", onClick: () => alert("Trying now") }}
       />
       
