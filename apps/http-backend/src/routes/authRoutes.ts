@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { CreateUserSchema,SignupSchema } from "@repo/common/types"
+import { CreateUserSchema,SignInSchema } from "@repo/common/types"
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { prisma } from "@repo/db/client"
@@ -61,7 +61,7 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
 
 authRouter.post("/signin", async (req: Request, res: Response) => {
 
-    const result = SignupSchema.safeParse(req.body);
+    const result = SignInSchema.safeParse(req.body);
     if(!result.success){
         res.status(400).json({
             "message": result.error.flatten().fieldErrors,
