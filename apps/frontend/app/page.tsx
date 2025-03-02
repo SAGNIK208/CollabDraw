@@ -3,8 +3,8 @@
 import React from "react";
 import { Layout } from "../components/Layout";
 import { HeroSection } from "../components/HeroSection";
-import { Card } from "@repo/ui/Card";
-import { Footer } from "@repo/ui/Footer";
+import { Card } from "@repo/ui/card";
+import { Footer } from "@repo/ui/footer";
 import { Users, Brush, Star, Share2 } from "lucide-react";
 
 export default function Home() {
@@ -26,8 +26,6 @@ export default function Home() {
           <Card title="Cloud-Synced" description="Access your projects from anywhere." icon={Star} />
         </div>
       </div>
-      
-      <Footer />
     </Layout>
   );
 }

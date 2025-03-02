@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@repo/ui/Button";
+import { Button } from "@repo/ui/button";
 import Image from "next/image";
 
 type HeroProps = {
