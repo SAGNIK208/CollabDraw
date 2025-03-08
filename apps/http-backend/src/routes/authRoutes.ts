@@ -42,7 +42,8 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
         });
         res.status(200).json({
             "status": "success",
-            "userId": user.id
+            "userId": user.id,
+            "message": "User Created Successfully"
         });
     }catch(error){
         if(error instanceof CustomError){
@@ -87,7 +88,8 @@ authRouter.post("/signin", async (req: Request, res: Response) => {
         },JWT_SECRET)
         res.status(200).json({
             "token": token,
-            "status": "success"
+            "status": "success",
+            "message":"Welcome back! You've successfully signed in. Redirecting now..."
         })
     }catch(error){
         if(error instanceof CustomError){

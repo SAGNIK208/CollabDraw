@@ -7,7 +7,7 @@ type HeroProps = {
   title: string;
   subtitle: string;
   primaryAction: { label: string; href:string };
-  secondaryAction?: { label: string; onClick: () => void };
+  secondaryAction?: { label: string;};
 };
 
 export const HeroSection: React.FC<HeroProps> = ({ title, subtitle, primaryAction, secondaryAction }) => {
@@ -20,7 +20,7 @@ export const HeroSection: React.FC<HeroProps> = ({ title, subtitle, primaryActio
           <Link href={primaryAction.href}>
               <Button label={primaryAction.label} variant="primary" />
             </Link>
-            {secondaryAction && <Button label={secondaryAction.label} onClick={secondaryAction.onClick} variant="outline" />}
+            {secondaryAction && <Button label={secondaryAction.label} variant="outline" />}
           </div>
         </div>
         <div className="mt-12 md:mt-0 flex justify-center w-full md:w-1/2">

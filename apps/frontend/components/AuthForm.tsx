@@ -1,8 +1,11 @@
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 import { FieldErrors, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Form from "@radix-ui/react-form";
 import { CreateUserSchema, SignInSchema, AuthFormType, CreateUserType } from "@repo/common/types";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import ApiTooltip from "@repo/ui/apiToolTip";
 
 export default function AuthForm({ isSignUp }: { isSignUp: boolean }) {
   const schema = isSignUp ? CreateUserSchema : SignInSchema;
@@ -23,11 +26,54 @@ export default function AuthForm({ isSignUp }: { isSignUp: boolean }) {
     if (!isSignUp) unregister("username");
   }, [isSignUp, reset, unregister]);
 
-  const onSubmit = (data: AuthFormType) => {
-    console.log(isSignUp ? "Signing Up" : "Signing In", data);
+  type TooltipState = {
+    message: string | null;
+    type: "success" | "error" | null;
+    statusCode?: number;
+  };
+  const [tooltip, setTooltip] = useState<TooltipState>({
+    message: null,
+    type: null,
+    statusCode: undefined,
+  });
+  const router = useRouter();
+  const onSubmit = async (data: AuthFormType) => {
+    try{
+      const response = await axios({
+        url:`http://localhost:8080/api/auth/${isSignUp ? "signup" : "signin"}`,
+        method: "POST",
+        data: data
+      });
+      console.log(response);
+      setTooltip({
+        message:response.data.message,
+        type:"success",
+        statusCode:response.status
+      });
+      setTimeout(()=>{
+        router.push((isSignUp)?"/signin":"rooms");
+      },1000);
+    }catch(error:unknown){
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        setTooltip({
+          message:error.response?.data?.message,
+          type:"error",
+          statusCode:error.status
+        });
+      } else {
+        setTooltip({
+          message:"Something went wrong",
+          type:"error",
+          statusCode:500
+        });
+      }
+    }
   };
 
   return (
+    <>
+     {tooltip.message && <ApiTooltip key={Date.now()} message={tooltip.message} type={tooltip.type} statusCode={tooltip.statusCode}/>}
     <div className="w-full max-w-md bg-white p-6 rounded-2xl shadow-lg">
       <h2 className="text-2xl font-bold text-center mb-6">
         {isSignUp ? "Create an Account" : "Sign In"}
@@ -84,5 +130,6 @@ export default function AuthForm({ isSignUp }: { isSignUp: boolean }) {
         </a>
       </p>
     </div>
+  </> 
   );
 }

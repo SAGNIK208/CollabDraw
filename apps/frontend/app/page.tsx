@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { Layout } from "../components/Layout";
 import { HeroSection } from "../components/HeroSection";
@@ -13,7 +11,7 @@ export default function Home() {
         title="Collaborate in real-time with CollabDraw!"
         subtitle="A powerful online whiteboard for seamless teamwork and creativity."
         primaryAction={{ label: "Get Started", href: "/signup" }}
-        secondaryAction={{ label: "Try now", onClick: () => alert("Trying now") }}
+        secondaryAction={{ label: "Try now" }}
       />
       
       {/* Extended Hero Section Background */}
