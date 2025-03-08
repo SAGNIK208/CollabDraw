@@ -2,10 +2,12 @@
 import { useState, useEffect } from "react";
 import { RoomCard } from "../../components/RoomCard";
 import { Layout } from "../../components/Layout";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const RoomsPage = () => {
     const [rooms, setRooms] = useState<string[]>([]);
+    const router = useRouter();  
 
     useEffect(() => {
       const storedRooms = JSON.parse(localStorage.getItem("canvasRooms") || "[]");
