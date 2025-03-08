@@ -8,7 +8,8 @@
     "build": "tsc -b"
   },
   "exports": {
-    "./types": "./dist/type.js"
+    "./types": "./dist/type.js",
+    "./constants": "./dist/constant.js"
   },
   "keywords": [],
   "author": "",

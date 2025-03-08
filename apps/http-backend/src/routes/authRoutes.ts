@@ -88,10 +88,10 @@ authRouter.post("/signin", async (req: Request, res: Response) => {
         },JWT_SECRET);
         res.cookie("token", token, {
             httpOnly: true, 
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            secure: false,
+            sameSite: "lax",
             maxAge: 3600000,
-          });
+        });
         res.status(200).json({
             "token": token,
             "status": "success",
@@ -111,6 +111,15 @@ authRouter.post("/signin", async (req: Request, res: Response) => {
         });
     }
 
+});
+
+authRouter.post("/logout",async (req:AuthenticatedRequest,res:Response)=>{
+    res.clearCookie("token", {
+        httpOnly: true, 
+        secure: false,
+        sameSite: "lax"
+    });
+    res.sendStatus(200);
 });
 
 authRouter.get("/rooms",validateUser,async (req:AuthenticatedRequest,res:Response)=>{

@@ -7,7 +7,7 @@ import { LucideIcon } from "lucide-react";
 type ButtonProps = {
   label: string;
   onClick?: () => void;
-  variant?: "primary" | "secondary" | "outline";
+  variant?: "primary" | "secondary" | "outline" | "logout";
   className?: string;
   icon?: LucideIcon;
 };
@@ -25,6 +25,7 @@ export const Button: React.FC<ButtonProps> = ({
     primary: "bg-blue-600 text-white hover:bg-blue-700",
     secondary: "bg-gray-800 text-white hover:bg-gray-900",
     outline: "border border-gray-600 text-gray-800 hover:bg-gray-100",
+    logout: "bg-red-500 text-white hover:bg-red-600"
   };
 
   return (

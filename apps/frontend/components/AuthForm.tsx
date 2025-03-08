@@ -42,9 +42,9 @@ export default function AuthForm({ isSignUp }: { isSignUp: boolean }) {
       const response = await axios({
         url:`http://localhost:8080/api/auth/${isSignUp ? "signup" : "signin"}`,
         method: "POST",
-        data: data
+        data: data,
+        withCredentials:true
       });
-      console.log(response);
       setTooltip({
         message:response.data.message,
         type:"success",

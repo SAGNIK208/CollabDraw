@@ -44,6 +44,7 @@ roomRouter.post(
         data: {
           roomId: room.id,
           adminId: room.adminId,
+          roomName: room.name
         },
         status: "success",
       });
@@ -61,6 +62,27 @@ roomRouter.post(
         });
       }
     }
+  }
+);
+
+roomRouter.get(
+  "/",
+  validateUser,
+  async (req: AuthenticatedRequest, res: Response) => {
+  const rooms = await prisma.room.findMany({
+      where:{
+        adminId:req.userId
+      },
+      select: {
+        name: true,
+        id: true
+      }
+    });
+    res.status(200).json({
+      data: {
+        rooms
+      },
+    });
   }
 );
 
@@ -85,6 +107,25 @@ roomRouter.get(
       data: {
         roomId: exists.id,
         adminId: exists.adminId,
+      },
+    });
+  }
+);
+
+roomRouter.delete(
+  "/:roomName",
+  validateUser,
+  async (req: AuthenticatedRequest, res: Response) => {
+  const roomName = String(req.params.roomName);
+  const rooms = await prisma.room.delete({
+      where:{
+        name:roomName,
+        adminId:req.userId
+      }
+    });
+    res.status(200).json({
+      data: {
+        rooms
       },
     });
   }

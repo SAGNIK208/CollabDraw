@@ -57,5 +57,9 @@ export type AuthFormType = z.infer<typeof CreateUserSchema> | z.infer<typeof Sig
 
 export type CreateUserType = z.infer<typeof CreateUserSchema>;
 
+export type RoomType = {
+  "name":string,
+  "id":number
+};
 
 export {z};
