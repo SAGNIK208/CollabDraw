@@ -1,27 +1,19 @@
-import { type JSX } from "react";
+import React from "react";
+import { LucideIcon } from "lucide-react";
 
-export function Card({
-  className,
-  title,
-  children,
-  href,
-}: {
-  className?: string;
+interface CardProps {
   title: string;
-  children: React.ReactNode;
-  href: string;
-}): JSX.Element {
-  return (
-    <a
-      className={className}
-      href={`${href}?utm_source=create-turbo&utm_medium=basic&utm_campaign=create-turbo"`}
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      <h2>
-        {title} <span>-&gt;</span>
-      </h2>
-      <p>{children}</p>
-    </a>
-  );
+  description: string;
+  icon?: LucideIcon;
+  className?: string;
 }
+
+export const Card: React.FC<CardProps> = ({ title, description, icon: Icon, className }) => {
+  return (
+    <div className={`p-8 rounded-2xl shadow-xl bg-white border border-gray-200 flex flex-col items-center text-center space-y-4 transform transition-all hover:scale-105 ${className}`}>
+      {Icon && <Icon className="w-14 h-14 text-blue-600" />}
+      <h3 className="text-2xl font-semibold text-gray-900">{title}</h3>
+      <p className="text-gray-600 text-lg">{description}</p>
+    </div>
+  );
+};

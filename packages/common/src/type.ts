@@ -1,5 +1,13 @@
 import { z } from "zod";
-import {shapes} from "@repo/db/client";
+
+export enum Shapes {
+  RECTANGLE = "RECTANGLE",
+  ELLIPSE = "ELLIPSE",
+  LINE = "LINE",
+  ARROW = "ARROW",
+  TEXT = "TEXT",
+}
+
 
 export const CreateUserSchema = z.object({
   username: z
@@ -16,7 +24,7 @@ export const CreateUserSchema = z.object({
     .regex(/[0-9]/, "Password must have ond digit"),
 });
 
-export const SignupSchema = z.object({
+export const SignInSchema = z.object({
   email: z.string(),
   password: z.string(),
 });
@@ -32,7 +40,7 @@ export const CreateRoomSchema = z.object({
 const pointSchema = z.object({ x: z.number(), y: z.number() });
 
 export const CreateCanvasElementSchema = z.object({
-  type: z.nativeEnum(shapes),
+  type: z.nativeEnum(Shapes),
   x: z.number().nullable(),
   y: z.number().nullable(),
   width: z.number().nullable(),
@@ -45,6 +53,13 @@ export const CreateCanvasElementSchema = z.object({
   points: z.array(pointSchema),
 });
 
+export type AuthFormType = z.infer<typeof CreateUserSchema> | z.infer<typeof SignInSchema>;
 
+export type CreateUserType = z.infer<typeof CreateUserSchema>;
+
+export type RoomType = {
+  "name":string,
+  "id":number
+};
 
 export {z};

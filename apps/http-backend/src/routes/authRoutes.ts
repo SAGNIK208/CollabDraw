@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { CreateUserSchema,SignupSchema } from "@repo/common/types"
+import { CreateUserSchema,SignInSchema } from "@repo/common/types"
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { prisma } from "@repo/db/client"
@@ -42,7 +42,8 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
         });
         res.status(200).json({
             "status": "success",
-            "userId": user.id
+            "userId": user.id,
+            "message": "User Created Successfully"
         });
     }catch(error){
         if(error instanceof CustomError){
@@ -61,7 +62,7 @@ authRouter.post("/signup", async (req: Request, res: Response) => {
 
 authRouter.post("/signin", async (req: Request, res: Response) => {
 
-    const result = SignupSchema.safeParse(req.body);
+    const result = SignInSchema.safeParse(req.body);
     if(!result.success){
         res.status(400).json({
             "message": result.error.flatten().fieldErrors,
@@ -84,10 +85,17 @@ authRouter.post("/signin", async (req: Request, res: Response) => {
         }
         const token = jwt.sign({
             userId : user.id
-        },JWT_SECRET)
+        },JWT_SECRET);
+        res.cookie("token", token, {
+            httpOnly: true, 
+            secure: false,
+            sameSite: "lax",
+            maxAge: 3600000,
+        });
         res.status(200).json({
             "token": token,
-            "status": "success"
+            "status": "success",
+            "message":"Welcome back! You've successfully signed in. Redirecting now..."
         })
     }catch(error){
         if(error instanceof CustomError){
@@ -103,6 +111,15 @@ authRouter.post("/signin", async (req: Request, res: Response) => {
         });
     }
 
+});
+
+authRouter.post("/logout",async (req:AuthenticatedRequest,res:Response)=>{
+    res.clearCookie("token", {
+        httpOnly: true, 
+        secure: false,
+        sameSite: "lax"
+    });
+    res.sendStatus(200);
 });
 
 authRouter.get("/rooms",validateUser,async (req:AuthenticatedRequest,res:Response)=>{

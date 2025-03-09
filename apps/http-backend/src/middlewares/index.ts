@@ -9,7 +9,7 @@ export function validateUser(
   res: Response,
   next: NextFunction
 ) {
-  const token = req.headers[headers.Authorization]?.toString() ?? "";
+  const token = req.cookies.token?.toString() ?? "";
   try {
     const decodedUser = jwt.verify(token, JWT_SECRET);
     if (!decodedUser || typeof decodedUser === "string") {
