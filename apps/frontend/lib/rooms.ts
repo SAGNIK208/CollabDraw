@@ -19,7 +19,7 @@ export async function fetchRooms(cookies:string) : Promise<RoomType[]>{
 }
 
 export async function createRoom(name:string) : Promise<RoomType|null>{
-    let room:RoomType  = {} as RoomType;
+    const room:RoomType  = {} as RoomType;
     try{
         const response = await axios.post(`${BASE_API_URL}/room`,{
             name:name

@@ -1,7 +1,6 @@
 "use client";
 import { RoomCard } from "./RoomCard";
 import { Layout } from "./Layout";
-import Link from "next/link";
 import {createRoom,deleteRoom} from "../lib/rooms";
 import { RoomType } from "@repo/common/types";
 import { Button } from "@repo/ui/button";
