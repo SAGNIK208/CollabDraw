@@ -10,8 +10,8 @@ export default function Home() {
       <HeroSection
         title="Collaborate in real-time with CollabDraw!"
         subtitle="A powerful online whiteboard for seamless teamwork and creativity."
-        primaryAction={{ label: "Get Started", href: "/signup" }}
-        secondaryAction={{ label: "Try now" }}
+        primaryAction={{ label: "Get Started", href: "/signin" }}
+        secondaryAction={{ label: "Try now", href: "/signup" }}
       />
       
       {/* Extended Hero Section Background */}

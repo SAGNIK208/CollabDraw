@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import {BASE_API_URL} from "@repo/common/constants";
 import { RoomType,CanvasElementType } from "@repo/common/types";
 axios.defaults.withCredentials = true;
@@ -13,6 +13,11 @@ export async function fetchRooms(cookies:string) : Promise<RoomType[]>{
         });
         rooms = response.data.data.rooms;
     }catch(error){
+        if(error instanceof AxiosError){
+            if (error.response?.status === 403 || error.response?.status === 401) {
+                throw error;
+              }
+        }
         console.log(error);
     }
     return rooms;
@@ -23,6 +28,11 @@ export async function fetchRoomElements(roomId: string) {
         const response = await axios.get(`${BASE_API_URL}/room/${roomId}/canvas`);
         rooms = response.data.data;
     }catch(error){
+        if(error instanceof AxiosError){
+            if (error.response?.status === 403 || error.response?.status === 401) {
+                throw error;
+              }
+        }
         console.log(error);
     }
     return rooms;

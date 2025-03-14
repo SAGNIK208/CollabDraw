@@ -64,4 +64,6 @@ export type RoomType = {
   "id":number
 };
 
+export type CanvasElement = z.infer<typeof CreateCanvasElementSchema>;
+
 export {z};

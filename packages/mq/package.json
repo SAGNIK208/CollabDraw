@@ -1,0 +1,29 @@
+{
+  "name": "@repo/mq",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build":"tsc -b",
+    "dev":"node ./dist/consumer/taskConsumer.js",
+    "start:consumer":"node ./dist/consumer/taskConsumer.js",
+    "stop:consumer": "pkill -f taskConsumer.js"
+  },
+  "devDependencies": {
+    "@repo/backend-common": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@repo/common": "workspace:*",
+    "@repo/db": "workspace:*"
+  },
+  "exports":{
+    "./*" : "./dist/publisher/*.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/amqplib": "^0.10.7",
+    "amqplib": "^0.10.5"
+  }
+}
