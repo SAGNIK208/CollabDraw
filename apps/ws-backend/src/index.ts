@@ -5,8 +5,8 @@ import {JWT_SECRET} from "@repo/backend-common/config";
 import {CreateCanvasElementSchema} from "@repo/common/types";
 import type {CanvasElement} from "./types/type"
 import {prisma} from "@repo/db/client";
-import { IncomingMessage, request } from "http";
-import { headers } from "./constants/request";
+import { IncomingMessage,Server,createServer } from "http";
+import * as cookie from "cookie";
 
 
 
@@ -16,20 +16,35 @@ class WebSocketServerManager{
     private wss: WebSocketServer
     private rooms: Map<number,Set<WebSocket>>
 
-    constructor(port:number){
-        this.wss = new WebSocketServer({port});
+    constructor(server: Server){
+        this.wss = new WebSocketServer({noServer:true});
         this.rooms = new Map();
-        this.wss.on('connection',(ws,request)=>{
-            this.handleConnection(ws,request)
+        server.on("upgrade", (req, socket, head) => this.handleUpgrade(req, socket, head));
+        this.wss.on('connection',(ws: WebSocket & { userId?: string },request)=>{
+            if(!ws.userId) return ws.close();
+            this.handleConnection(ws,request,ws.userId)
+        });
+    }
+
+    private handleUpgrade(req: IncomingMessage, socket: any, head: any) {
+        const cookies = cookie.parse(req.headers.cookie || "");
+        const token = cookies.token || "";
+        const userId = this.validateUser(token);
+        if (!userId) {
+            socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+            socket.destroy();
+            return;
+        }
+        this.wss.handleUpgrade(req, socket, head, (ws) => {
+            (ws as any).userId = userId;
+            this.wss.emit("connection", ws, req,userId);
         });
     }
     
-    private async handleConnection(ws:WebSocket,req:IncomingMessage){
-        const token = req.headers[headers.Authorization]?.toString()??"";
-        const userId = this.validateUser(token);
+    private async handleConnection(ws:WebSocket,req:IncomingMessage,userId:string){
         const queryParams = new URLSearchParams(req.url?.split('?')[1]);
         const roomId = queryParams.get('roomId');
-        if(!userId || !roomId){
+        if(!roomId){
             ws.close();
             return;
         }
@@ -141,4 +156,6 @@ class WebSocketServerManager{
 }
 
 
-new WebSocketServerManager(parseInt(PORT));
+const server = createServer();
+new WebSocketServerManager(server);
+server.listen(parseInt(PORT), () => console.log(`Server running on port ${PORT}`));

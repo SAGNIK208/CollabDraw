@@ -1,6 +1,5 @@
 import { Response, NextFunction } from "express";
 import { JWT_SECRET } from "@repo/backend-common/config";
-import { headers } from "../constants/request";
 import jwt from "jsonwebtoken";
 import { AuthenticatedRequest } from "../types/type";
 
