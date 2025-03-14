@@ -25,9 +25,12 @@
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.6",
+    "@radix-ui/react-popover": "^1.1.6",
+    "@types/react-color": "^3.0.13",
     "framer-motion": "^12.4.7",
     "lucide-react": "^0.477.0",
     "react": "^19.0.0",
+    "react-color": "^2.19.3",
     "react-dom": "^19.0.0"
   }
 }
