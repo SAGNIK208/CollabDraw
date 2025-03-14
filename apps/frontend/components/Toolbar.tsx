@@ -41,15 +41,15 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
     onUpdate(element);
   }, [element, onUpdate]);
 
- const updateElement = <K extends keyof CanvasElementType>(
-  key: K,
-  value: CanvasElementType[K]
-) => {
-  setElement((prev) => ({
-    ...prev,
-    [key]: value,
-  }));
-};
+  const updateElement = <K extends keyof CanvasElementType>(
+    key: K,
+    value: CanvasElementType[K]
+  ) => {
+    setElement((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
 
   return (
     <div className="flex items-center gap-4 px-4 py-2 bg-gradient-to-br from-blue-100 to-blue-200 shadow-md">
@@ -57,11 +57,10 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
       <ToggleGroup
         type="single"
         value={element.type}
-        onValueChange={(val:Shapes) => val && updateElement("type", val)}
+        onValueChange={(val: Shapes) => val && updateElement("type", val)}
         className="flex gap-2"
       >
-       {/* Arrow Button */}
-       <ToggleGroupItem
+        <ToggleGroupItem
           value={Shapes.ARROW}
           className={`flex items-center justify-center p-2 rounded-md transition ${
             element.type === Shapes.ARROW
@@ -72,7 +71,6 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
           <Pencil className="w-5 h-5" />
         </ToggleGroupItem>
 
-        {/* Line Button */}
         <ToggleGroupItem
           value={Shapes.LINE}
           className={`flex items-center justify-center p-2 rounded-md transition ${
@@ -83,6 +81,7 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
         >
           <Minus className="w-5 h-5" />
         </ToggleGroupItem>
+
         <ToggleGroupItem
           value={Shapes.RECTANGLE}
           className={`flex items-center justify-center p-2 rounded-md transition ${
@@ -93,6 +92,7 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
         >
           <Square className="w-5 h-5" />
         </ToggleGroupItem>
+
         <ToggleGroupItem
           value={Shapes.ELLIPSE}
           className={`flex items-center justify-center p-2 rounded-md transition ${
@@ -103,7 +103,7 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
         >
           <Circle className="w-5 h-5" />
         </ToggleGroupItem>
-        {/* Text Button with "A" */}
+
         <ToggleGroupItem
           value={Shapes.TEXT}
           className={`flex items-center justify-center p-2 rounded-md transition text-lg font-bold ${
@@ -116,20 +116,19 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
         </ToggleGroupItem>
       </ToggleGroup>
 
-      {/* Stroke Width Dropdown */}
+      {/* Stroke Width Dropdown (Fixed) */}
       <div className="relative">
         <Select
-          onValueChange={(val) => updateElement("strokeWidth", Number(val))}
+          value={(element.strokeWidth??1).toString()} // Explicitly set value
+          onValueChange={(val) => {
+            updateElement("strokeWidth", Number(val));
+            (document.activeElement as HTMLElement | null)?.blur();
+          }}
         >
           <SelectTrigger className="relative w-20 px-3 py-2 bg-white border border-gray-300 rounded-md">
-            <SelectValue placeholder="Width" />
+            <SelectValue>{element.strokeWidth}px</SelectValue>
           </SelectTrigger>
-          <SelectContent
-            side="bottom"
-            align="start"
-            sideOffset={4}
-            className="z-50 bg-white border border-gray-300 shadow-lg rounded-md"
-          >
+          <SelectContent className="z-50 bg-white border border-gray-300 shadow-lg rounded-md">
             {STROKE_WIDTHS.map((size) => (
               <SelectItem
                 key={size}
@@ -147,17 +146,16 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
       {element.type === Shapes.TEXT && (
         <div className="relative">
           <Select
-            onValueChange={(val) => updateElement("fontSize", Number(val))}
+            value={element.fontSize?.toString() || ""}
+            onValueChange={(val) => {
+              updateElement("fontSize", Number(val));
+              (document.activeElement as HTMLElement | null)?.blur();
+            }}
           >
             <SelectTrigger className="relative w-24 px-3 py-2 bg-white border border-gray-300 rounded-md">
-              <SelectValue placeholder="Font Size" />
+              <SelectValue>{element.fontSize ? `${element.fontSize}px` : "Font Size"}</SelectValue>
             </SelectTrigger>
-            <SelectContent
-              side="bottom"
-              align="start"
-              sideOffset={4}
-              className="z-50 bg-white border border-gray-300 shadow-lg rounded-md"
-            >
+            <SelectContent className="z-50 bg-white border border-gray-300 shadow-lg rounded-md">
               {FONT_SIZES.map((size) => (
                 <SelectItem
                   key={size}
@@ -187,7 +185,6 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
       {element.type !== Shapes.TEXT && (
         <div className="flex items-center gap-2">
           <span className="text-sm">Fill:</span>
-          {/* Color Picker (Disabled if Transparent is selected) */}
           <input
             type="color"
             value={element.fill || "#ffffff"}
