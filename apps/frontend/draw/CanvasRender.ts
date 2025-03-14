@@ -2,6 +2,8 @@ import {CanvasElementType, Shapes} from "@repo/common/types";
 import { CanvasElement } from "../lib/CanvasElement";
 import { CanvasElementFactory } from "../lib/CanvasElementFactory";
 import {fetchRoomElements} from "../lib/rooms";
+import { useRouter } from "next/navigation";
+import { AxiosError } from "axios";
 
 export class CanvasRender{
 
@@ -27,10 +29,16 @@ export class CanvasRender{
     }
 
     async init(){
-        const response = await fetchRoomElements(this.roomId);
-        response.map((data:CanvasElementType)=>this.existingElements.push(CanvasElementFactory.createCanvasElement(data)));
-        console.log(this.existingElements);
-        this.clearCanvas();
+        try{
+            const response = await fetchRoomElements(this.roomId);
+            response.map((data:CanvasElementType)=>this.existingElements.push(CanvasElementFactory.createCanvasElement(data)));
+            console.log(this.existingElements);
+            this.clearCanvas();
+        }catch(error){
+            if (error instanceof AxiosError && (error.response?.status === 403 || error.response?.status === 401)) {
+                console.log("Redirecting to sign-in...");
+            }
+        }
     }
 
     private handleIncomingEvent(event: MessageEvent){

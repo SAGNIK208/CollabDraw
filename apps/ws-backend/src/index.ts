@@ -2,10 +2,10 @@ import { WebSocket, WebSocketServer} from "ws";
 import { MessageType } from "./types/type";
 import jwt from "jsonwebtoken";
 import {JWT_SECRET} from "@repo/backend-common/config"; 
-import {CreateCanvasElementSchema} from "@repo/common/types";
-import type {CanvasElement} from "./types/type"
+import {CreateCanvasElementSchema,CanvasElement} from "@repo/common/types";
 import {prisma} from "@repo/db/client";
 import { IncomingMessage,Server,createServer } from "http";
+import {publishMessage} from "@repo/mq/taskPublisher";
 import * as cookie from "cookie";
 
 
@@ -140,19 +140,10 @@ class WebSocketServerManager{
             return;
         }
         const element : CanvasElement = parsedData.data;
-        this.saveElement(element,roomId,userId);
+        publishMessage(JSON.stringify({element,roomId,userId}));
         this.broadCastMessage(roomId,data,ws);
     };
 
-    private async saveElement(element:CanvasElement,roomId:number,userId:string){
-        await prisma.canvasElement.create({
-            data:{
-                ...element,
-                roomId:roomId,
-                userId:userId
-            }
-        });
-    }
 }
 
 

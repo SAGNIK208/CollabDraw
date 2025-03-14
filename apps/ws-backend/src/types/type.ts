@@ -1,5 +1,3 @@
-import { z,CreateCanvasElementSchema } from "@repo/common/types";
-
 export enum MessageType {
     JOIN_ROOM="JOIN_ROOM",
     LEAVE_ROOM="LEAVE_ROOM",
@@ -7,4 +5,3 @@ export enum MessageType {
     PING="PING"
 }
 
-export type CanvasElement = z.infer<typeof CreateCanvasElementSchema>;
