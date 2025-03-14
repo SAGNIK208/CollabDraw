@@ -54,15 +54,17 @@ const Canvas = ({roomId}:{roomId:string}) => {
 
 
     return (
-        <div className="h-screen overflow-hidden flex flex-col">
-          {/* Toolbar */}
+        <div className="h-screen overflow-hidden relative">
+        {/* Toolbar - Absolute Positioning */}
+        <div className="absolute top-0 left-0 w-full z-10">
           <Toolbar onUpdate={setElement} />
-    
-          {/* Canvas */}
-          <div className="flex-grow">
-            <canvas ref={canvasRef} width={dimensions.width} height={dimensions.height} />
-          </div>
         </div>
+      
+        {/* Canvas - Fullscreen without being affected */}
+        <div className="w-full h-full">
+          <canvas ref={canvasRef} width={dimensions.width} height={dimensions.height} />
+        </div>
+      </div>      
       );
 }
 

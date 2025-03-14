@@ -57,10 +57,25 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
         onValueChange={(val) => val && updateElement("type", val)}
         className="flex gap-2"
       >
-        <ToggleGroupItem
+       {/* Arrow Button */}
+       <ToggleGroupItem
           value={Shapes.ARROW}
           className={`flex items-center justify-center p-2 rounded-md transition ${
-            element.type === Shapes.ARROW ? "bg-blue-500 text-white" : "bg-white hover:bg-gray-300"
+            element.type === Shapes.ARROW
+              ? "bg-blue-500 text-white"
+              : "bg-white hover:bg-gray-300"
+          }`}
+        >
+          <Pencil className="w-5 h-5" />
+        </ToggleGroupItem>
+
+        {/* Line Button */}
+        <ToggleGroupItem
+          value={Shapes.LINE}
+          className={`flex items-center justify-center p-2 rounded-md transition ${
+            element.type === Shapes.LINE
+              ? "bg-blue-500 text-white"
+              : "bg-white hover:bg-gray-300"
           }`}
         >
           <Minus className="w-5 h-5" />
@@ -68,7 +83,9 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
         <ToggleGroupItem
           value={Shapes.RECTANGLE}
           className={`flex items-center justify-center p-2 rounded-md transition ${
-            element.type === Shapes.RECTANGLE ? "bg-blue-500 text-white" : "bg-white hover:bg-gray-300"
+            element.type === Shapes.RECTANGLE
+              ? "bg-blue-500 text-white"
+              : "bg-white hover:bg-gray-300"
           }`}
         >
           <Square className="w-5 h-5" />
@@ -76,47 +93,41 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
         <ToggleGroupItem
           value={Shapes.ELLIPSE}
           className={`flex items-center justify-center p-2 rounded-md transition ${
-            element.type === Shapes.ELLIPSE ? "bg-blue-500 text-white" : "bg-white hover:bg-gray-300"
+            element.type === Shapes.ELLIPSE
+              ? "bg-blue-500 text-white"
+              : "bg-white hover:bg-gray-300"
           }`}
         >
           <Circle className="w-5 h-5" />
         </ToggleGroupItem>
+        {/* Text Button with "A" */}
         <ToggleGroupItem
           value={Shapes.TEXT}
-          className={`flex items-center justify-center p-2 rounded-md transition ${
-            element.type === Shapes.TEXT ? "bg-blue-500 text-white" : "bg-white hover:bg-gray-300"
+          className={`flex items-center justify-center p-2 rounded-md transition text-lg font-bold ${
+            element.type === Shapes.TEXT
+              ? "bg-blue-500 text-white"
+              : "bg-white hover:bg-gray-300"
           }`}
         >
-          <Text className="w-5 h-5" />
+          A
         </ToggleGroupItem>
       </ToggleGroup>
 
-      {/* Stroke Width */}
-      <Select onValueChange={(val) => updateElement("strokeWidth", Number(val))}>
-        <SelectTrigger className="relative w-20 px-3 py-2 bg-white border border-gray-300 rounded-md">
-          <SelectValue placeholder="Width" />
-        </SelectTrigger>
-        <SelectContent className="absolute left-0 mt-2 w-20 bg-white border border-gray-300 shadow-lg rounded-md">
-          {STROKE_WIDTHS.map((size) => (
-            <SelectItem
-              key={size}
-              value={size.toString()}
-              className="px-3 py-2 hover:bg-blue-500 hover:text-white cursor-pointer rounded-md"
-            >
-              {size}px
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      {/* Font Size (Only for Text) */}
-      {element.type === Shapes.TEXT && (
-        <Select onValueChange={(val) => updateElement("fontSize", Number(val))}>
-          <SelectTrigger className="relative w-24 px-3 py-2 bg-white border border-gray-300 rounded-md">
-            <SelectValue placeholder="Font Size" />
+      {/* Stroke Width Dropdown */}
+      <div className="relative">
+        <Select
+          onValueChange={(val) => updateElement("strokeWidth", Number(val))}
+        >
+          <SelectTrigger className="relative w-20 px-3 py-2 bg-white border border-gray-300 rounded-md">
+            <SelectValue placeholder="Width" />
           </SelectTrigger>
-          <SelectContent className="absolute left-0 mt-2 w-24 bg-white border border-gray-300 shadow-lg rounded-md">
-            {FONT_SIZES.map((size) => (
+          <SelectContent
+            side="bottom"
+            align="start"
+            sideOffset={4}
+            className="z-50 bg-white border border-gray-300 shadow-lg rounded-md"
+          >
+            {STROKE_WIDTHS.map((size) => (
               <SelectItem
                 key={size}
                 value={size.toString()}
@@ -127,9 +138,38 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      {/* Font Size Dropdown (Only for Text) */}
+      {element.type === Shapes.TEXT && (
+        <div className="relative">
+          <Select
+            onValueChange={(val) => updateElement("fontSize", Number(val))}
+          >
+            <SelectTrigger className="relative w-24 px-3 py-2 bg-white border border-gray-300 rounded-md">
+              <SelectValue placeholder="Font Size" />
+            </SelectTrigger>
+            <SelectContent
+              side="bottom"
+              align="start"
+              sideOffset={4}
+              className="z-50 bg-white border border-gray-300 shadow-lg rounded-md"
+            >
+              {FONT_SIZES.map((size) => (
+                <SelectItem
+                  key={size}
+                  value={size.toString()}
+                  className="px-3 py-2 hover:bg-blue-500 hover:text-white cursor-pointer rounded-md"
+                >
+                  {size}px
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       )}
 
-      {/* Stroke Color */}
+      {/* Stroke Color Picker */}
       <div className="flex items-center gap-2">
         <span className="text-sm">Stroke:</span>
         <input
@@ -144,11 +184,12 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
       {element.type !== Shapes.TEXT && (
         <div className="flex items-center gap-2">
           <span className="text-sm">Fill:</span>
+          {/* Color Picker (Disabled if Transparent is selected) */}
           <input
             type="color"
             value={element.fill || "#ffffff"}
             onChange={(e) => updateElement("fill", e.target.value)}
-            className="w-8 h-8 p-1 rounded-md border-none outline-none"
+            className="w-8 h-8 p-1 rounded-md border-none outline-none cursor-pointer disabled:opacity-50"
           />
         </div>
       )}
