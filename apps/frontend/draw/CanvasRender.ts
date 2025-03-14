@@ -1,6 +1,7 @@
 import {CanvasElementType, Shapes} from "@repo/common/types";
 import { CanvasElement } from "../lib/CanvasElement";
 import { CanvasElementFactory } from "../lib/CanvasElementFactory";
+import {fetchRoomElements} from "../lib/rooms";
 
 export class CanvasRender{
 
@@ -12,18 +13,33 @@ export class CanvasRender{
     private clicked : boolean;
     private existingElements : CanvasElement[] = [];
     private currentElement : Partial<CanvasElementType>  = {};
+    private socket : WebSocket;
 
-    constructor(canvas : HTMLCanvasElement,roomId : string){
+    constructor(canvas : HTMLCanvasElement,roomId : string,socket: WebSocket){
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d")!;
         this.roomId = roomId;
         this.clicked = false;
+        this.socket = socket;
         this.init();
         this.initMouseHandlers();
+        this.socket.onmessage = this.handleIncomingEvent.bind(this);
     }
 
     async init(){
-       console.log(this.existingElements);
+        const response = await fetchRoomElements(this.roomId);
+        response.map((data:CanvasElementType)=>this.existingElements.push(CanvasElementFactory.createCanvasElement(data)));
+        console.log(this.existingElements);
+        this.clearCanvas();
+    }
+
+    private handleIncomingEvent(event: MessageEvent){
+        console.log("Message Received");
+        const data = JSON.parse(event.data);
+        const newElement = CanvasElementFactory.createCanvasElement(data);
+        this.existingElements.push(newElement);
+        this.clearCanvas();
+
     }
 
     applyElementUpdate(element:CanvasElementType){
@@ -82,6 +98,7 @@ export class CanvasRender{
         }];
         const element : CanvasElement =CanvasElementFactory.createCanvasElement(this.currentElement);
         this.existingElements.push(element);
+        this.socket.send(JSON.stringify({type:"ELEMENT",element:element.getElement}));
     }
 
     doubleClickHandler = (e: MouseEvent) => {
@@ -130,18 +147,21 @@ export class CanvasRender{
     
             const text = input.value.trim();
             if (text) {
-                this.existingElements.push(
-                    CanvasElementFactory.createCanvasElement({
-                        type: Shapes.TEXT,
-                        x,
-                        y,
-                        text,
-                        fontSize: this.currentElement.fontSize ?? 16,
-                        stroke: this.currentElement.stroke ?? "black",
-                        width: input.offsetWidth,
-                        height: input.offsetHeight,
-                    })
-                );
+                const elementInstance = CanvasElementFactory.createCanvasElement({
+                    type: Shapes.TEXT,
+                    x,
+                    y,
+                    text,
+                    fontSize: this.currentElement.fontSize ?? 16,
+                    stroke: this.currentElement.stroke ?? "black",
+                    width: input.offsetWidth,
+                    height: input.offsetHeight,
+                    points:[],
+                    strokeWidth: this.currentElement.strokeWidth,
+                    fill: this.currentElement.fill
+                });
+                this.existingElements.push(elementInstance);
+                this.socket.send(JSON.stringify({type:"ELEMENT",element:elementInstance.getElement}));
                 this.clearCanvas();
             }
             document.body.removeChild(input);

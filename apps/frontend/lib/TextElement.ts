@@ -11,7 +11,7 @@ export class TextElement extends CanvasElement{
         ctx.font = `${this.element.fontSize ?? 16}px Arial`;
         ctx.fillStyle = this.element.stroke!;   
         const lines = this.element.text.split("\n");
-        let lineHeight = this.element.fontSize ?? 16;
+        const lineHeight = this.element.fontSize ?? 16;
         lines.forEach((line, index) => {
             ctx.fillText(line, this.element.x!, this.element.y! + index * lineHeight);
         });

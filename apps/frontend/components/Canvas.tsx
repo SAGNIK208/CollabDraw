@@ -5,7 +5,7 @@ import { CanvasRender } from "../draw/CanvasRender";
 import Toolbar from "./Toolbar";
 import { CanvasElementType, Shapes } from "@repo/common/types";
 
-const Canvas = ({roomId}:{roomId:string}) => {
+const Canvas = ({roomId,socket}:{roomId:string,socket:WebSocket | null}) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const canvasInstance = useRef<CanvasRender | null>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -27,13 +27,13 @@ const Canvas = ({roomId}:{roomId:string}) => {
       });
 
     useEffect(() => {
-        if (canvasRef.current) {
-          canvasInstance.current = new CanvasRender(canvasRef.current, roomId);
+        if (canvasRef.current && socket) {
+          canvasInstance.current = new CanvasRender(canvasRef.current, roomId,socket);
           return () => {
             canvasInstance.current?.destroy();
           };
         }
-    }, [roomId]);
+    }, [roomId,socket]);
 
     useEffect(() => {
         const updateDimensions = () => {

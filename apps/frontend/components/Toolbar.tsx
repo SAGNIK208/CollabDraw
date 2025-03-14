@@ -10,7 +10,7 @@ import {
   SelectItem,
 } from "@radix-ui/react-select";
 import { CanvasElementType, Shapes } from "@repo/common/types";
-import { Circle, Square, Text, Pencil, Minus } from "lucide-react";
+import { Circle, Square, Pencil, Minus } from "lucide-react";
 
 const STROKE_WIDTHS = [1, 2, 3, 4, 5] as const;
 const FONT_SIZES = [12, 16, 20, 24, 32] as const;
@@ -41,12 +41,15 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
     onUpdate(element);
   }, [element, onUpdate]);
 
-  const updateElement = (key: keyof CanvasElementType, value: any) => {
-    setElement((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
+ const updateElement = <K extends keyof CanvasElementType>(
+  key: K,
+  value: CanvasElementType[K]
+) => {
+  setElement((prev) => ({
+    ...prev,
+    [key]: value,
+  }));
+};
 
   return (
     <div className="flex items-center gap-4 px-4 py-2 bg-gradient-to-br from-blue-100 to-blue-200 shadow-md">
@@ -54,7 +57,7 @@ export default function Toolbar({ onUpdate }: ToolbarProps) {
       <ToggleGroup
         type="single"
         value={element.type}
-        onValueChange={(val) => val && updateElement("type", val)}
+        onValueChange={(val:Shapes) => val && updateElement("type", val)}
         className="flex gap-2"
       >
        {/* Arrow Button */}

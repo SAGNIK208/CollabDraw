@@ -28,6 +28,10 @@ const RoomLayout = ({initialRooms}:{initialRooms:RoomType[]}) => {
       }
     };
 
+    const navigateToRoom = (room: RoomType) => {
+      router.push(`/rooms/${room.id}`);
+    };
+
     const handleLogout = async () => {
       if (confirm("Are you sure you want to logout?")) {
         await axios({
@@ -52,7 +56,7 @@ const RoomLayout = ({initialRooms}:{initialRooms:RoomType[]}) => {
           {/* Room Grid */}
           <div className="grid lg:grid-cols-4 sm:grid-cols-2 md:grid-cols-3 gap-1">
             {rooms.map((room) => (
-              <RoomCard key={room.name} name={room.name} onClick={()=>{}} onDelete={() => removeRoom(room)} />
+              <RoomCard key={room.name} name={room.name} onClick={()=>navigateToRoom(room)} onDelete={() => removeRoom(room)} />
             ))}
             <RoomCard onClick={addRoom} />
           </div>
