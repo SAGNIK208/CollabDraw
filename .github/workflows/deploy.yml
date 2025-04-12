@@ -35,7 +35,7 @@ jobs:
 
       - name: Archive full repository
         run: |
-          tar -czf repo.tar.gz . --exclude=node_modules --exclude=.git
+          tar --exclude='node_modules' --exclude='.git' -czf build.tar.gz .
 
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
