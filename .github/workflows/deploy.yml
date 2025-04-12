@@ -22,7 +22,7 @@ jobs:
         run: npm install -g pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Create .env file for Prisma
         run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > ./packages/db/.env  
@@ -31,14 +31,34 @@ jobs:
         run: pnpm --filter=./packages/db exec prisma generate
 
       - name: Build Everything
-        run: pnpm build
+        run: pnpm run build
 
-      - name: Create Deployment Archive
+      - name: Prune Unused Packages (keep prod only)
+        run: pnpm prune --prod
+
+      - name: Prepare Deployment Folder
         run: |
-          mkdir -p temp-deploy
-          rsync -av --exclude=node_modules --exclude=.git ./ temp-deploy/
-          cd temp-deploy
-          tar -czf ../build.tar.gz .
+          mkdir -p deploy
+
+          # Copy apps
+          cp -r ./apps/http-backend/dist deploy/apps/http-backend
+          cp -r ./apps/ws-backend/dist deploy/apps/ws-backend
+          cp -r ./apps/frontend/.next/standalone deploy/apps/frontend
+          cp -r ./apps/frontend/.next/static deploy/apps/frontend/.next/static
+          cp -r ./apps/frontend/public deploy/apps/frontend/public || true
+
+          # Copy only necessary packages
+          cp -r ./packages/common/dist deploy/packages/common
+          cp -r ./packages/db/dist deploy/packages/db
+          cp -r ./packages/db/node_modules deploy/packages/db/node_modules
+
+          # Copy prod node_modules
+          cp -r node_modules deploy/
+
+          # Copy required root files
+          cp package.json pnpm-lock.yaml deploy/
+
+          tar -czf build.tar.gz deploy
 
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
@@ -48,42 +68,47 @@ jobs:
       - name: Add Known Hosts
         run: ssh-keyscan ${{ secrets.DEPLOY_IP }} >> ~/.ssh/known_hosts
 
-      - name: Upload Build to DEPLOY
+      - name: Upload Build to EC2
         run: |
           scp build.tar.gz ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_IP }}:${{ secrets.DEPLOY_PATH }}
 
-      - name: SSH and Deploy
+      - name: SSH and Deploy on EC2
         run: |
-          ssh ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_IP }} << EOF
+          ssh ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_IP }} << 'EOF'
             set -e
             export PATH=\$PATH:/home/ubuntu/.nvm/versions/node/v22.14.0/bin
             cd ${{ secrets.DEPLOY_PATH }}
 
-            # Cleanup and unpack
-            rm -rf repo
-            mkdir repo
-            tar -xzf repo.tar.gz -C repo
-            cd repo
+            # Clean old and unpack
+            rm -rf deploy
+            tar -xzf build.tar.gz
+            cd deploy
 
-            # Install dependencies again to restore node_modules
-            pnpm install
-
-            # Regenerate Prisma Client
-            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > packages/db/.env
-            pnpm --filter=packages/db exec prisma generate
-
-            # Write env files
+            # Write .env files
             echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > apps/http-backend/.env
             echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> apps/http-backend/.env
-            echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" > apps/ws-backend/.env
+            echo "WS_URL=${{ secrets.WS_URL }}" >> apps/http-backend/.env
+            echo "WS_URL=${{ secrets.WS_URL }}" >> apps/frontend/.env
 
+            # Install production dependencies
+            pnpm install --prod
+
+            # Restart services using PM2
             pm2 delete api || true
-            pm2 start "pnpm --filter @repo/http-backend start" --name api
+            cd apps/http-backend
+            pm2 start index.js --name api
+            cd ../..
 
             pm2 delete ws || true
-            pm2 start "pnpm --filter @repo/ws-backend start" --name ws
+            cd apps/ws-backend
+            pm2 start index.js --name ws
+            cd ../..
 
             pm2 delete web || true
-            pm2 start "pnpm --filter @repo/frontend start" --name web
-          EOF
+            cd apps/frontend
+            pm2 start server.js --name web
+            cd ../..
 
+            pm2 save
+            pm2 startup
+          EOF
