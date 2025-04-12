@@ -40,6 +40,7 @@ jobs:
           cp -r ./apps/ws-backend/dist deploy/ws
           # --- Copy Next.js Standalone Output ---
           # 1. Copy standalone server files (adjust path if needed based on actual output)
+          mkdir -p deploy/web/.next
           echo "Copying standalone files..."
           cp -r ./apps/frontend/.next/standalone/. deploy/web/
 
