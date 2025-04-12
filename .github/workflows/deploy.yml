@@ -33,42 +33,14 @@ jobs:
       - name: Build Everything
         run: pnpm build
 
-      - name: Prune Unused Packages (keep prod only)
-        run: pnpm prune --prod
-
-      - name: Prepare Deployment Folder
+      - name: Archive full repository
         run: |
-          mkdir -p deploy
-
-          # Copy apps
-          cp -r ./apps/http-backend deploy/apps/
-          cp -r ./apps/ws-backend deploy/apps/
-          cp -r ./apps/frontend deploy/apps/
-
-          # Copy packages
-          cp -r ./packages/common deploy/packages/
-          cp -r ./packages/db deploy/packages/
-
-          # Copy prod node_modules
-          cp -r node_modules deploy/
-
-          # Copy required root files
-          cp package.json pnpm-lock.yaml deploy/
-
-          # Copy Next.js standalone build
-          mkdir -p deploy/apps/frontend/.next
-          cp -r ./apps/frontend/.next/standalone/* deploy/apps/frontend/
-          cp -r ./apps/frontend/.next/static deploy/apps/frontend/.next/static
-          cp -r ./apps/frontend/public deploy/apps/frontend/public || true
-
-          tar -czf build.tar.gz deploy
+          tar -czf repo.tar.gz . --exclude=node_modules --exclude=.git
 
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
-
-    # No need to manually write the key to ~/.ssh/id_rsa after this
 
       - name: Add Known Hosts
         run: ssh-keyscan ${{ secrets.DEPLOY_IP }} >> ~/.ssh/known_hosts
@@ -84,23 +56,31 @@ jobs:
             export PATH=\$PATH:/home/ubuntu/.nvm/versions/node/v22.14.0/bin
             cd ${{ secrets.DEPLOY_PATH }}
 
-            # Clean old and unpack
-            rm -rf deploy
-            tar -xzf build.tar.gz
-            cd deploy
+            # Cleanup and unpack
+            rm -rf repo
+            mkdir repo
+            tar -xzf repo.tar.gz -C repo
+            cd repo
 
-            # Write .env files
+            # Install dependencies again to restore node_modules
+            pnpm install
+
+            # Regenerate Prisma Client
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > packages/db/.env
+            pnpm --filter=packages/db exec prisma generate
+
+            # Write env files
             echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > apps/http-backend/.env
             echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> apps/http-backend/.env
+            echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" > apps/ws-backend/.env
 
-            # Restart services using PM2
             pm2 delete api || true
-            pm2 start apps/http-backend/dist/index.js --name api
+            pm2 start "pnpm --filter @repo/http-backend start" --name api
 
             pm2 delete ws || true
-            pm2 start apps/ws-backend/dist/index.js --name ws
+            pm2 start "pnpm --filter @repo/ws-backend start" --name ws
 
             pm2 delete web || true
-            pm2 start apps/frontend/server.js --name web
+            pm2 start "pnpm --filter @repo/frontend start" --name web
           EOF
 
