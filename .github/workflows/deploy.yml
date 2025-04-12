@@ -89,18 +89,18 @@ jobs:
             tar -xzf build.tar.gz
             cd deploy
 
-            # Write envs for API
-            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > api/.env
-            echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> api/.env
+            # Write .env files
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > apps/http-backend/.env
+            echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> apps/http-backend/.env
 
-            # Restart services
+            # Restart services using PM2
             pm2 delete api || true
-            pm2 start api/index.js --name api
+            pm2 start apps/http-backend/dist/index.js --name api
 
             pm2 delete ws || true
-            pm2 start ws/index.js --name ws
+            pm2 start apps/ws-backend/dist/index.js --name ws
 
             pm2 delete web || true
-            pm2 start web/apps/frontend/server.js --name web
+            pm2 start apps/frontend/server.js --name web
           EOF
 
