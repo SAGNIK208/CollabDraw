@@ -94,10 +94,10 @@ jobs:
 
             # Restart services
             pm2 delete api || true
-            pm2 start api/dist/index.js --name api
+            pm2 start api/index.js --name api
 
             pm2 delete ws || true
-            pm2 start ws/dist/index.js --name ws
+            pm2 start ws/index.js --name ws
 
             pm2 delete web || true
             pm2 start web/apps/frontend/server.js --name web
