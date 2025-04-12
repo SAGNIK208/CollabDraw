@@ -136,9 +136,9 @@ roomRouter.get(
   validateUser,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const roomId = Number(req.params.roomId);
+      const roomId = req.params.roomId ?? "";
       let limit = Number(req.query.limit);
-      if (!limit || isNaN(limit)) limit = 5;
+      if (!limit || isNaN(limit)) limit = 1000;
       const elements = await prisma.canvasElement.findMany({
         where: {
           roomId: roomId,

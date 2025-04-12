@@ -23,7 +23,7 @@ model User {
 }
 
 model Room {
-  id        Int      @id @default(autoincrement())
+  id        String      @id @default(uuid())
   name      String   @unique
   createdAt DateTime @default(now())
   adminId   String
@@ -41,7 +41,7 @@ enum Shapes {
 
 model CanvasElement {
   id          Int      @id @default(autoincrement())
-  roomId      Int      
+  roomId      String      
   userId      String      
   type        Shapes
   x           Float?
