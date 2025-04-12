@@ -36,7 +36,7 @@ jobs:
       - name: Prune Unused Packages (keep prod only)
         run: pnpm prune --prod
 
-        - name: Prepare Deployment Folder
+      - name: Prepare Deployment Folder
         run: |
           mkdir -p deploy
 
@@ -66,7 +66,7 @@ jobs:
           cp package.json pnpm-lock.yaml deploy/
 
           tar -czf build.tar.gz deploy
-          
+
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
