@@ -40,7 +40,7 @@ jobs:
         run: |
           mkdir -p deploy/http-backend
           cp -r ./apps/http-backend/dist deploy/http-backend/dist
-          cp ./apps/http-backend/node_modules deploy/http-backend
+          cp -r ./apps/http-backend/node_modules deploy/http-backend
           tar -czf build.tar.gz deploy
 
       - name: Setup SSH Agent
