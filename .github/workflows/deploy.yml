@@ -36,7 +36,7 @@ jobs:
       - name: Create Deployment Archive
         run: |
           mkdir deploy
-          cp -r ./apps/http-backend/dist deploy/http-backend
+          cp -r ./apps/http-backend/dist deploy/http-backend/dist
           cp ./apps/http-backend/package.json ./apps/http-backend/tsconfig.json deploy/http-backend
           cp -r ./packages deploy/packages
           # Copy required root files
