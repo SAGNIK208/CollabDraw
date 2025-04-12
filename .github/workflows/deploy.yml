@@ -31,7 +31,7 @@ jobs:
         run: pnpm --filter=packages/db exec prisma generate
 
       - name: Build Turborepo
-        run: pnpm turbo run build --filter=apps...
+        run: pnpm turbo run build
 
       - name: Create Deployment Archive
         run: |
