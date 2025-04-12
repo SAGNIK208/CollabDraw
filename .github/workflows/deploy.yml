@@ -61,7 +61,7 @@ jobs:
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
-        ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
 
     # No need to manually write the key to ~/.ssh/id_rsa after this
 
