@@ -41,26 +41,12 @@ jobs:
           mkdir -p deploy
 
           # Copy apps with correct structure
-          mkdir -p deploy/apps/http-backend.app
-          cp -r ./apps/http-backend/dist/* deploy/apps/http-backend.app/
-          
-          mkdir -p deploy/apps/ws-backend.app
-          cp -r ./apps/ws-backend/dist/* deploy/apps/ws-backend.app/
-
-          # Frontend remains without .app
-          cp -r ./apps/frontend/.next/standalone deploy/apps/frontend
-          cp -r ./apps/frontend/.next/static deploy/apps/frontend/.next/static
-          cp -r ./apps/frontend/public deploy/apps/frontend/public || true
+          mkdir -p deploy/apps/http-backend
+          cp -r ./apps/http-backend/dist/* deploy/apps/http-backend/
 
           # Copy packages
-          mkdir -p deploy/packages/db.app
-          cp -r ./packages/db/dist/* deploy/packages/db.app/
-          
-          mkdir -p deploy/packages/common.app
-          cp -r ./packages/common/dist/* deploy/packages/common.app/
-
-          # Copy prod node_modules
-          cp -r node_modules deploy/
+          mkdir -p deploy/packages
+          cp -r ./packages/db/dist/* deploy/packages/
 
           # Copy required root files
           cp package.json pnpm-lock.yaml deploy/
@@ -94,8 +80,6 @@ jobs:
             # Write .env files
             echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > apps/http-backend/.env
             echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> apps/http-backend/.env
-            echo "WS_URL=${{ secrets.WS_URL }}" >> apps/http-backend/.env
-            echo "WS_URL=${{ secrets.WS_URL }}" >> apps/frontend/.env
 
             # Install production dependencies
             pnpm install --prod
@@ -103,17 +87,7 @@ jobs:
             # Restart services using PM2
             pm2 delete api || true
             cd apps/http-backend
-            pm2 start index.js --name api
-            cd ../..
-
-            pm2 delete ws || true
-            cd apps/ws-backend
-            pm2 start index.js --name ws
-            cd ../..
-
-            pm2 delete web || true
-            cd apps/frontend
-            pm2 start server.js --name web
+            pm2 start "pnpm start:http-backend" --name api
             cd ../..
 
             pm2 save
