@@ -70,6 +70,7 @@ jobs:
           ssh ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_IP }} << 'EOF'
             set -e
             export PATH=\$PATH:/home/ubuntu/.nvm/versions/node/v22.14.0/bin
+            mkdir -p ${{ secrets.DEPLOY_PATH }}
             cd ${{ secrets.DEPLOY_PATH }}
 
             # Clean old and unpack
