@@ -19,7 +19,7 @@ const consumeMessage = async () => {
         try {
           const data = JSON.parse(messageContent);
           const element:CanvasElement = data.element;
-          const roomId:number = data.roomId;
+          const roomId:string = data.roomId;
           const userId:string = data.userId;
           await saveElement(element,roomId,userId);
           channel.ack(msg);
@@ -33,7 +33,7 @@ const consumeMessage = async () => {
   }
 };
 
-async function saveElement(element:CanvasElement,roomId:number,userId:string){
+async function saveElement(element:CanvasElement,roomId:string,userId:string){
     await prisma.canvasElement.create({
         data:{
             ...element,
