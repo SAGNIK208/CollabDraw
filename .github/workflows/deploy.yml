@@ -36,7 +36,7 @@ jobs:
       - name: Create Deployment Archive
         run: |
           mkdir deploy
-          cp -r ./apps/http-backend/dist deploy/api
+          cp -r ./apps/http-backend/dist deploy/http-backend
           cp -r ./packages deploy/packages
           # Copy required root files
           cp package.json pnpm-lock.yaml deploy/
@@ -68,15 +68,15 @@ jobs:
             tar -xzf build.tar.gz
             cd deploy
 
-            # Write envs for API
-            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > api/.env
-            echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> api/.env
+            # Write envs for http-backend
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > http-backend/.env
+            echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> http-backend/.env
 
             # Install production dependencies
             pnpm install --prod
 
             # Restart services
-            pm2 delete api || true
-            pm2 start "pnpm start:http-backend" --name api
+            pm2 delete http-backend || true
+            pm2 start "pnpm start:http-backend" --name http-backend
             cd ../..
           EOF
