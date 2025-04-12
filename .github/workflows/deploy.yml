@@ -38,16 +38,35 @@ jobs:
           mkdir deploy
           cp -r ./apps/http-backend/dist deploy/api
           cp -r ./apps/ws-backend/dist deploy/ws
-          cp -r ./apps/frontend/.next deploy/web
+          # --- Copy Next.js Standalone Output ---
+          # 1. Copy standalone server files (adjust path if needed based on actual output)
+          echo "Copying standalone files..."
+          cp -r ./apps/frontend/.next/standalone/. deploy/web/
+
+          # 2. Copy static assets
+          echo "Copying static assets..."
+          cp -r ./apps/frontend/.next/static deploy/web/.next/static
+
+          # 3. Copy public folder (if it exists)
+          if [ -d "./apps/frontend/public" ]; then
+            echo "Copying public folder..."
+            cp -r ./apps/frontend/public deploy/web/public
+          else
+            echo "No public folder found or needed."
+          fi
+          # --- End Next.js Copying ---
           # Optional: zip it
           tar -czf build.tar.gz deploy
 
-      - name: Setup SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan ${{ secrets.DEPLOY_IP }} >> ~/.ssh/known_hosts
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+        ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+    # No need to manually write the key to ~/.ssh/id_rsa after this
+
+      - name: Add Known Hosts
+        run: ssh-keyscan ${{ secrets.DEPLOY_IP }} >> ~/.ssh/known_hosts
 
       - name: Upload Build to DEPLOY
         run: |
