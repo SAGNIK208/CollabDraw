@@ -35,29 +35,29 @@ jobs:
 
       - name: Create Deployment Archive
         run: |
-          mkdir deploy
-          cp -r ./apps/http-backend/dist deploy/api
-          cp -r ./apps/ws-backend/dist deploy/ws
-          # --- Copy Next.js Standalone Output ---
-          # 1. Copy standalone server files (adjust path if needed based on actual output)
-          mkdir -p deploy/web/.next
-          echo "Copying standalone files..."
-          cp -r ./apps/frontend/.next/standalone/. deploy/web/
+         mkdir -p deploy/api
+         mkdir -p deploy/ws
+         mkdir -p deploy/web
 
-          # 2. Copy static assets
-          echo "Copying static assets..."
-          cp -r ./apps/frontend/.next/static deploy/web/.next/static
+         # Copy API backend
+         cp -r ./apps/http-backend/dist deploy/api/
+         cp ./apps/http-backend/package.json deploy/api/
+         cp ./apps/http-backend/pnpm-lock.yaml deploy/api/ || true
 
-          # 3. Copy public folder (if it exists)
-          if [ -d "./apps/frontend/public" ]; then
-            echo "Copying public folder..."
-            cp -r ./apps/frontend/public deploy/web/public
-          else
-            echo "No public folder found or needed."
-          fi
-          # --- End Next.js Copying ---
-          # Optional: zip it
-          tar -czf build.tar.gz deploy
+         # Copy WebSocket backend
+         cp -r ./apps/ws-backend/dist deploy/ws/
+         cp ./apps/ws-backend/package.json deploy/ws/
+         cp ./apps/ws-backend/pnpm-lock.yaml deploy/ws/ || true
+
+         # Copy Next.js (standalone build)
+         cp -r ./apps/frontend/.next/standalone/. deploy/web/
+         cp -r ./apps/frontend/.next/static deploy/web/.next/static
+
+         if [ -d "./apps/frontend/public" ]; then
+           cp -r ./apps/frontend/public deploy/web/public
+         fi
+
+         tar -czf build.tar.gz deploy
 
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
@@ -84,6 +84,15 @@ jobs:
             rm -rf deploy
             tar -xzf build.tar.gz
             cd deploy
+
+            # Install dependencies
+            cd api
+            pnpm install --prod
+            cd ../ws
+            pnpm install --prod
+            cd ../web
+            pnpm install --prod || echo "No web dependencies to install"
+            cd ..
 
             # Write envs for API
             echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > api/.env
