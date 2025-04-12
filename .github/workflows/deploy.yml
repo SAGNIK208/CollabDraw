@@ -1,106 +1,104 @@
 name: Build and Deploy TurboRepo to EC2
 
 on:
-push:
-branches:
-- main
+  push:
+    branches:
+      - main
 
 jobs:
-deploy:
-runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest
 
-steps:
-- name: Checkout Repo
-uses: actions/checkout@v3
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
 
-- name: Setup Node & PNPM
-uses: actions/setup-node@v3
-with:
-node-version: '22'
+      - name: Setup Node & PNPM
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
 
-- name: Install pnpm
-run: npm install -g pnpm
+      - name: Install pnpm
+        run: npm install -g pnpm
 
-- name: Install dependencies
-run: pnpm install
+      - name: Install dependencies
+        run: pnpm install
 
-- name: Create .env file for Prisma
-run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > ./packages/db/.env  
+      - name: Create .env file for Prisma
+        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > ./packages/db/.env  
 
-- name: Generate Prisma Client
-run: pnpm --filter=./packages/db exec prisma generate
+      - name: Generate Prisma Client
+        run: pnpm --filter=./packages/db exec prisma generate
 
-- name: Build Turborepo
-run: pnpm turbo run build
+      - name: Build Turborepo
+        run: pnpm turbo run build
 
-- name: Create Deployment Archive
-run: |
-         mkdir deploy
-         cp -r ./apps/http-backend/dist deploy/api
-         cp -r ./apps/ws-backend/dist deploy/ws
-         # --- Copy Next.js Standalone Output ---
-         # 1. Copy standalone server files (adjust path if needed based on actual output)
-         mkdir -p deploy/web/.next
-         echo "Copying standalone files..."
-         cp -r ./apps/frontend/.next/standalone/. deploy/web/
+      - name: Create Deployment Archive
+        run: |
+          mkdir deploy
+          cp -r ./apps/http-backend/dist deploy/api
+          cp -r ./apps/ws-backend/dist deploy/ws
+          # --- Copy Next.js Standalone Output ---
+          # 1. Copy standalone server files (adjust path if needed based on actual output)
+          mkdir -p deploy/web/.next
+          echo "Copying standalone files..."
+          cp -r ./apps/frontend/.next/standalone/. deploy/web/
 
-         # 2. Copy static assets
-         echo "Copying static assets..."
-         cp -r ./apps/frontend/.next/static deploy/web/.next/static
+          # 2. Copy static assets
+          echo "Copying static assets..."
+          cp -r ./apps/frontend/.next/static deploy/web/.next/static
 
-         # 3. Copy public folder (if it exists)
-         if [ -d "./apps/frontend/public" ]; then
-           echo "Copying public folder..."
-           cp -r ./apps/frontend/public deploy/web/public
-         else
-           echo "No public folder found or needed."
-         fi
-         # --- End Next.js Copying ---
-         # Optional: zip it
-         tar -czf build.tar.gz deploy
+          # 3. Copy public folder (if it exists)
+          if [ -d "./apps/frontend/public" ]; then
+            echo "Copying public folder..."
+            cp -r ./apps/frontend/public deploy/web/public
+          else
+            echo "No public folder found or needed."
+          fi
+          # --- End Next.js Copying ---
+          # Optional: zip it
+          tar -czf build.tar.gz deploy
 
-     - name: Setup SSH Agent
-uses: webfactory/ssh-agent@v0.9.0
-with:
-ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
 
-# No need to manually write the key to ~/.ssh/id_rsa after this
+    # No need to manually write the key to ~/.ssh/id_rsa after this
 
-- name: Add Known Hosts
-run: ssh-keyscan ${{ secrets.DEPLOY_IP }} >> ~/.ssh/known_hosts
+      - name: Add Known Hosts
+        run: ssh-keyscan ${{ secrets.DEPLOY_IP }} >> ~/.ssh/known_hosts
 
-- name: Upload Build to DEPLOY
-run: |
-         scp build.tar.gz ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_IP }}:${{ secrets.DEPLOY_PATH }}
+      - name: Upload Build to DEPLOY
+        run: |
+          scp build.tar.gz ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_IP }}:${{ secrets.DEPLOY_PATH }}
 
-     - name: SSH and Deploy
-run: |
-         ssh ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_IP }} << EOF
-           set -e
-           export PATH=\$PATH:/home/ubuntu/.nvm/versions/node/v22.14.0/bin
-           cd ${{ secrets.DEPLOY_PATH }}
+      - name: SSH and Deploy
+        run: |
+          ssh ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_IP }} << EOF
+            set -e
+            export PATH=\$PATH:/home/ubuntu/.nvm/versions/node/v22.14.0/bin
+            cd ${{ secrets.DEPLOY_PATH }}
 
-           # Clean old and unpack
-           rm -rf deploy
-           tar -xzf build.tar.gz
-           cd deploy
+            # Clean old and unpack
+            rm -rf deploy
+            tar -xzf build.tar.gz
+            cd deploy
 
-           # Write envs for API
-           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > api/.env
-           echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> api/.env
+            # Write envs for API
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > api/.env
+            echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> api/.env
 
-           # Write envs for WebSocket if needed
-           echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" > ws/.env
+            # Write envs for WebSocket if needed
+            echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" > ws/.env
 
-           # Restart services
-           pm2 delete api || true
-            pm2 start api/dist/index.js --name api
+            # Restart services
+            pm2 delete api || true
             pm2 start api/index.js --name api
 
-           pm2 delete ws || true
-            pm2 start ws/dist/index.js --name ws
+            pm2 delete ws || true
             pm2 start ws/index.js --name ws
 
-           pm2 delete web || true
-           pm2 start web/apps/frontend/server.js --name web
-         EOF
+            pm2 delete web || true
+            pm2 start web/apps/frontend/server.js --name web
+          EOF
