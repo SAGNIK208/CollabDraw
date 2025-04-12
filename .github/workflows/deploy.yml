@@ -37,7 +37,7 @@ jobs:
         run: |
           mkdir deploy
           cp -r ./apps/http-backend/dist deploy/http-backend
-          cp package.json tsconfig.json deploy/http-backend
+          cp ./apps/http-backend/package.json ./apps/http-backend/tsconfig.json deploy/http-backend
           cp -r ./packages deploy/packages
           # Copy required root files
           cp package.json pnpm-lock.yaml deploy/
