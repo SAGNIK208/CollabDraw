@@ -14,7 +14,7 @@ const PORT  = process.env.PORT || '8081';
 
 class WebSocketServerManager{
     private wss: WebSocketServer
-    private rooms: Map<number,Set<WebSocket>>
+    private rooms: Map<string,Set<WebSocket>>
 
     constructor(server: Server){
         this.wss = new WebSocketServer({noServer:true});
@@ -50,7 +50,7 @@ class WebSocketServerManager{
         }
         const room = await prisma.room.findFirst({
             where:{
-                id:Number(roomId)
+                id:roomId
             }
         });
         if(!room){
@@ -62,7 +62,7 @@ class WebSocketServerManager{
         });
     }
 
-    private async handleMessage(ws:WebSocket,message:string,roomId:number,userId:string){
+    private async handleMessage(ws:WebSocket,message:string,roomId:string,userId:string){
         const data = JSON.parse(message);
         switch(data.type){
             case MessageType.JOIN_ROOM:{
@@ -88,7 +88,7 @@ class WebSocketServerManager{
         }
     }
     
-    private async disconnect(ws:WebSocket,roomId:number){
+    private async disconnect(ws:WebSocket,roomId:string){
         this.leaveRoom(ws,roomId);
         ws.close();
     }
@@ -106,7 +106,7 @@ class WebSocketServerManager{
         return null;
     }
 
-    private joinRoom(user:WebSocket,roomId:number){
+    private joinRoom(user:WebSocket,roomId:string){
         let users = this.rooms.get(roomId);
         if(!users){
             users = new Set<WebSocket>();
@@ -115,7 +115,7 @@ class WebSocketServerManager{
         this.rooms.set(roomId,users);
     }
 
-    private broadCastMessage(roomId:number,data:JSON,ws:WebSocket){
+    private broadCastMessage(roomId:string,data:JSON,ws:WebSocket){
         if(!this.rooms.has(roomId)) return;
         let users : Set<WebSocket>  = this.rooms.get(roomId)!;
         for(const user of users){
@@ -125,14 +125,14 @@ class WebSocketServerManager{
         }
     }
 
-    private leaveRoom(user:WebSocket,roomId:number){
+    private leaveRoom(user:WebSocket,roomId:string){
         if(!this.rooms.has(roomId)){
             return;
         }
         this.rooms.get(roomId)?.delete(user);
     }
 
-    private async handleElement(ws:WebSocket,data:JSON,roomId:number,userId:string){
+    private async handleElement(ws:WebSocket,data:JSON,roomId:string,userId:string){
         const parsedData = CreateCanvasElementSchema.safeParse(data);
         if(!parsedData.success){
             console.log(parsedData.error.flatten().fieldErrors)

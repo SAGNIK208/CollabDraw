@@ -2,8 +2,18 @@
 CREATE TYPE "Shapes" AS ENUM ('RECTANGLE', 'ELLIPSE', 'LINE', 'ARROW', 'TEXT');
 
 -- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Room" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "adminId" TEXT NOT NULL,
@@ -14,7 +24,7 @@ CREATE TABLE "Room" (
 -- CreateTable
 CREATE TABLE "CanvasElement" (
     "id" SERIAL NOT NULL,
-    "roomId" INTEGER NOT NULL,
+    "roomId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "type" "Shapes" NOT NULL,
     "x" DOUBLE PRECISION,
@@ -32,6 +42,9 @@ CREATE TABLE "CanvasElement" (
 
     CONSTRAINT "CanvasElement_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Room_name_key" ON "Room"("name");

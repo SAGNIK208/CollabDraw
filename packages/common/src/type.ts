@@ -61,9 +61,10 @@ export type CanvasElementType = Partial<z.infer<typeof CreateCanvasElementSchema
 
 export type RoomType = {
   "name":string,
-  "id":number
+  "id":string
 };
 
 export type CanvasElement = z.infer<typeof CreateCanvasElementSchema>;
+export type CreateRoomFormData = z.infer<typeof CreateRoomSchema>;
 
 export {z};
