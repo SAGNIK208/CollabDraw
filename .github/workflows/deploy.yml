@@ -1,0 +1,84 @@
+name: Build and Deploy TurboRepo to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node & PNPM
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Create .env file for Prisma
+        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > packages/db/.env  
+
+      - name: Generate Prisma Client
+        run: pnpm --filter=packages/db exec prisma generate
+
+      - name: Build Turborepo
+        run: pnpm turbo run build --filter=apps...
+
+      - name: Create Deployment Archive
+        run: |
+          mkdir deploy
+          cp -r apps/http-backend/dist deploy/api
+          cp -r apps/ws-backend/dist deploy/ws
+          cp -r apps/frontend/.next deploy/web
+          # Optional: zip it
+          tar -czf build.tar.gz deploy
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan ${{ secrets.DEPLOY_IP }} >> ~/.ssh/known_hosts
+
+      - name: Upload Build to DEPLOY
+        run: |
+          scp build.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_IP }}:${{ secrets.DEPLOY_PATH }}
+
+      - name: SSH and Deploy
+        run: |
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_IP }} << EOF
+            set -e
+            cd ${{ secrets.DEPLOY_PATH }}
+
+            # Clean old and unpack
+            rm -rf deploy
+            tar -xzf build.tar.gz
+            cd deploy
+
+            # Write envs for API
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > api/.env
+            echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> api/.env
+
+            # Write envs for WebSocket if needed
+            echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" > ws/.env
+
+            # Restart services
+            pm2 delete api || true
+            pm2 start api/dist/index.js --name api
+
+            pm2 delete ws || true
+            pm2 start ws/dist/index.js --name ws
+
+            pm2 delete web || true
+            pm2 start web/server/index.mjs --name web
+          EOF
+
