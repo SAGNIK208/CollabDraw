@@ -77,7 +77,6 @@ jobs:
 
             # Restart services
             pm2 delete api || true
-            cd apps/http-backend
             pm2 start "pnpm start:http-backend" --name api
             cd ../..
           EOF
