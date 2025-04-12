@@ -37,26 +37,9 @@ jobs:
         run: |
           mkdir deploy
           cp -r ./apps/http-backend/dist deploy/api
-          cp -r ./apps/ws-backend/dist deploy/ws
-          # --- Copy Next.js Standalone Output ---
-          # 1. Copy standalone server files (adjust path if needed based on actual output)
-          mkdir -p deploy/web/.next
-          echo "Copying standalone files..."
-          cp -r ./apps/frontend/.next/standalone/. deploy/web/
-
-          # 2. Copy static assets
-          echo "Copying static assets..."
-          cp -r ./apps/frontend/.next/static deploy/web/.next/static
-
-          # 3. Copy public folder (if it exists)
-          if [ -d "./apps/frontend/public" ]; then
-            echo "Copying public folder..."
-            cp -r ./apps/frontend/public deploy/web/public
-          else
-            echo "No public folder found or needed."
-          fi
-          # --- End Next.js Copying ---
-          # Optional: zip it
+          cp -r ./packages deploy/packages
+          # Copy required root files
+          cp package.json pnpm-lock.yaml deploy/
           tar -czf build.tar.gz deploy
 
       - name: Setup SSH Agent
@@ -89,16 +72,12 @@ jobs:
             echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > api/.env
             echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> api/.env
 
-            # Write envs for WebSocket if needed
-            echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" > ws/.env
+            # Install production dependencies
+            pnpm install --prod
 
             # Restart services
             pm2 delete api || true
-            pm2 start api/index.js --name api
-
-            pm2 delete ws || true
-            pm2 start ws/index.js --name ws
-
-            pm2 delete web || true
-            pm2 start web/apps/frontend/server.js --name web
+            cd apps/http-backend
+            pm2 start "pnpm start:http-backend" --name api
+            cd ../..
           EOF
