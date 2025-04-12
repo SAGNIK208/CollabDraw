@@ -41,13 +41,13 @@ jobs:
           mkdir -p deploy
 
           # Copy apps
-          cp -r apps/http-backend deploy/apps/
-          cp -r apps/ws-backend deploy/apps/
-          cp -r apps/frontend deploy/apps/
+          cp -r ./apps/http-backend deploy/apps/
+          cp -r ./apps/ws-backend deploy/apps/
+          cp -r ./apps/frontend deploy/apps/
 
           # Copy packages
-          cp -r packages/common deploy/packages/
-          cp -r packages/db deploy/packages/
+          cp -r ./packages/common deploy/packages/
+          cp -r ./packages/db deploy/packages/
 
           # Copy prod node_modules
           cp -r node_modules deploy/
@@ -57,9 +57,9 @@ jobs:
 
           # Copy Next.js standalone build
           mkdir -p deploy/apps/frontend/.next
-          cp -r apps/frontend/.next/standalone/* deploy/apps/frontend/
-          cp -r apps/frontend/.next/static deploy/apps/frontend/.next/static
-          cp -r apps/frontend/public deploy/apps/frontend/public || true
+          cp -r ./apps/frontend/.next/standalone/* deploy/apps/frontend/
+          cp -r ./apps/frontend/.next/static deploy/apps/frontend/.next/static
+          cp -r ./apps/frontend/public deploy/apps/frontend/public || true
 
           tar -czf build.tar.gz deploy
 
