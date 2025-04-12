@@ -71,11 +71,11 @@ jobs:
 
       - name: Upload Build to DEPLOY
         run: |
-          scp build.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_IP }}:${{ secrets.DEPLOY_PATH }}
+          scp build.tar.gz ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_IP }}:${{ secrets.DEPLOY_PATH }}
 
       - name: SSH and Deploy
         run: |
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_IP }} << EOF
+          ssh ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_IP }} << EOF
             set -e
             cd ${{ secrets.DEPLOY_PATH }}
 
