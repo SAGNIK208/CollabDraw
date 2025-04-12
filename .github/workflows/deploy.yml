@@ -30,34 +30,26 @@ jobs:
       - name: Generate Prisma Client
         run: pnpm --filter=./packages/db exec prisma generate
 
-      - name: Build Turborepo
-        run: pnpm turbo run build
+      - name: Build and Prune API Backend
+        run: |
+          pnpm --filter apps/http-backend... build
+          pnpm --filter apps/http-backend... prune --prod --output deploy/api
+
+      - name: Build and Prune WebSocket Backend
+        run: |
+          pnpm --filter apps/ws-backend... build
+          pnpm --filter apps/ws-backend... prune --prod --output deploy/ws
+
+      - name: Build Next.js Frontend
+        run: |
+          pnpm --filter apps/frontend build
+          mkdir -p deploy/web
+          cp -r apps/frontend/.next/standalone/* deploy/web/
+          cp -r apps/frontend/.next/static deploy/web/.next/static
+          cp -r apps/frontend/public deploy/web/public || true
 
       - name: Create Deployment Archive
-        run: |
-         mkdir -p deploy/api
-         mkdir -p deploy/ws
-         mkdir -p deploy/web/.next
-
-         # Copy API backend
-         cp -r ./apps/http-backend/dist deploy/api/
-         cp ./apps/http-backend/package.json deploy/api/
-         cp pnpm-lock.yaml deploy/api/ || true
-
-         # Copy WebSocket backend
-         cp -r ./apps/ws-backend/dist deploy/ws/
-         cp ./apps/ws-backend/package.json deploy/ws/
-         cp pnpm-lock.yaml deploy/ws/ || true
-
-         # Copy Next.js (standalone build)
-         cp -r ./apps/frontend/.next/standalone/. deploy/web/
-         cp -r ./apps/frontend/.next/static deploy/web/.next/static
-
-         if [ -d "./apps/frontend/public" ]; then
-           cp -r ./apps/frontend/public deploy/web/public
-         fi
-
-         tar -czf build.tar.gz deploy
+        run: tar -czf build.tar.gz deploy
 
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
@@ -85,21 +77,9 @@ jobs:
             tar -xzf build.tar.gz
             cd deploy
 
-            # Install dependencies
-            cd api
-            pnpm install --prod
-            cd ../ws
-            pnpm install --prod
-            cd ../web
-            pnpm install --prod || echo "No web dependencies to install"
-            cd ..
-
             # Write envs for API
             echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > api/.env
             echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> api/.env
-
-            # Write envs for WebSocket if needed
-            echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" > ws/.env
 
             # Restart services
             pm2 delete api || true
