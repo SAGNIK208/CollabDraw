@@ -24,8 +24,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Create .env file for Prisma
-        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > ./packages/db/.env  
+      - name: Create .env file
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > ./packages/db/.env
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > ./apps/http-backend/.env
+          echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> ./apps/http-backend/.env
 
       - name: Generate Prisma Client
         run: pnpm --filter=./packages/db exec prisma generate
@@ -37,10 +40,7 @@ jobs:
         run: |
           mkdir -p deploy/http-backend
           cp -r ./apps/http-backend/dist deploy/http-backend/dist
-          cp ./apps/http-backend/package.json ./apps/http-backend/tsconfig.json deploy/http-backend
-          cp -r ./packages deploy/packages
-          # Copy required root files
-          cp package.json pnpm-lock.yaml deploy/
+          cp ./apps/http-backend/node_modules deploy/http-backend
           tar -czf build.tar.gz deploy
 
       - name: Setup SSH Agent
@@ -67,17 +67,10 @@ jobs:
             # Clean old and unpack
             rm -rf deploy
             tar -xzf build.tar.gz
-            cd deploy
-
-            # Write envs for http-backend
-            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > http-backend/.env
-            echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> http-backend/.env
-
-            # Install production dependencies
-            pnpm install --prod
+            cd deploy/http-backend
 
             # Restart services
             pm2 delete http-backend || true
-            pm2 start "pnpm start:http-backend" --name http-backend
+            pm2 start dist/index.js --name http-backend
             cd ../..
           EOF
