@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -b",
+    "build": "ncc build src/index.ts -o dist",
     "start": "node dist/index.js",
     "dev": "pnpm build && pnpm start"
   },
@@ -15,11 +15,12 @@
     "@repo/backend-common": "workspace:*",
     "@repo/common": "workspace:*",
     "@repo/db": "workspace:*",
+    "@repo/mq": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@repo/mq": "workspace:*"
+    "@vercel/ncc": "^0.38.3"
   },
-  "exports":{
-    "./types":"./src/types/type.ts"
+  "exports": {
+    "./types": "./src/types/type.ts"
   },
   "dependencies": {
     "@types/jsonwebtoken": "^9.0.8",

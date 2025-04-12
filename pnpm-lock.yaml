@@ -148,6 +148,9 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.8
         version: 9.0.9
+      '@vercel/ncc':
+        specifier: ^0.38.3
+        version: 0.38.3
 
   apps/ws-backend:
     dependencies:
@@ -182,6 +185,9 @@ importers:
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
+      '@vercel/ncc':
+        specifier: ^0.38.3
+        version: 0.38.3
 
   packages/backend-common:
     devDependencies:
@@ -1428,6 +1434,10 @@ packages:
   '@typescript-eslint/visitor-keys@8.25.0':
     resolution: {integrity: sha512-kCYXKAum9CecGVHGij7muybDfTS2sD3t0L4bJsEZLkyrXUImiCTq1M3LG2SRtOhiHFwMR9wAFplpT6XHYjTkwQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@vercel/ncc@0.38.3':
+    resolution: {integrity: sha512-rnK6hJBS6mwc+Bkab+PGPs9OiS0i/3kdTO+CkI8V0/VrW3vmz7O2Pxjw/owOlmo6PKEIxRSeZKv/kuL9itnpYA==}
+    hasBin: true
 
   abbrev@1.1.1:
     resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
@@ -4797,6 +4807,8 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.25.0
       eslint-visitor-keys: 4.2.0
+
+  '@vercel/ncc@0.38.3': {}
 
   abbrev@1.1.1: {}
 

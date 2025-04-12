@@ -34,13 +34,13 @@ jobs:
         run: pnpm --filter=./packages/db exec prisma generate
 
       - name: Build Turborepo
-        run: pnpm turbo run build
+        run: pnpm build
 
       - name: Create Deployment Archive
         run: |
           mkdir -p deploy/http-backend
           cp -r ./apps/http-backend/dist deploy/http-backend/dist
-          cp -r ./apps/http-backend/node_modules deploy/http-backend
+          cp ./apps/http-backend/.env deploy/http-backend
           tar -czf build.tar.gz deploy
 
       - name: Setup SSH Agent
