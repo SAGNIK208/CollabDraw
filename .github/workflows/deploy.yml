@@ -37,7 +37,7 @@ jobs:
         run: |
          mkdir -p deploy/api
          mkdir -p deploy/ws
-         mkdir -p deploy/web
+         mkdir -p deploy/web/.next
 
          # Copy API backend
          cp -r ./apps/http-backend/dist deploy/api/
