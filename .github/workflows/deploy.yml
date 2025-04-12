@@ -68,6 +68,7 @@ jobs:
             rm -rf deploy
             tar -xzf build.tar.gz
             cd deploy/http-backend
+            mv dist/client/* dist/
 
             # Restart services
             pm2 delete http-backend || true
