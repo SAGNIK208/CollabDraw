@@ -51,11 +51,10 @@ jobs:
           cp ./apps/ws-backend/.env deploy/ws-backend
 
           #Copy Frontend
-          mkdir -p deploy/frontend/standalone/.next
-          cp -r ./apps/frontend/.next/standalone deploy/frontend
-          cp -r ./apps/frontend/public deploy/frontend/standalone/public
-          cp -r ./apps/frontend/.next/static deploy/frontend/standalone/.next/static
-          cp ./apps/frontend/package.json deploy/frontend/standalone
+          mkdir -p deploy/frontend
+          cp -r ./apps/frontend/.next/standalone/apps/frontend/* deploy/frontend
+          cp -r ./apps/frontend/.next/static deploy/frontend/.next/
+          cp -r ./apps/frontend/public deploy/
 
           tar -czf build.tar.gz deploy
 
@@ -101,9 +100,8 @@ jobs:
             pm2 start "node --env-file=.env dist/index.js" --name ws-backend
             cd ..
 
-            cd frontend/standalone
-            pnpm install --prod --ignore-scripts
+            cd frontend
             pm2 delete frontend || true
-            pm2 start "node server.js" --name frontend
+            pm2 start "PORT=3002 node server.js" --name frontend
             cd ..
           EOF
