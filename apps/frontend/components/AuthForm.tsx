@@ -6,10 +6,10 @@ import { CreateUserSchema, SignInSchema, AuthFormType, CreateUserType } from "@r
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import ApiTooltip from "@repo/ui/apiToolTip";
+import {BASE_API_URL} from "@repo/common/constants";
 
 export default function AuthForm({ isSignUp }: { isSignUp: boolean }) {
   const schema = isSignUp ? CreateUserSchema : SignInSchema;
-
   const {
     register,
     handleSubmit,
@@ -40,7 +40,7 @@ export default function AuthForm({ isSignUp }: { isSignUp: boolean }) {
   const onSubmit = async (data: AuthFormType) => {
     try{
       const response = await axios({
-        url:`http://localhost:8080/api/auth/${isSignUp ? "signup" : "signin"}`,
+        url:`${BASE_API_URL}/auth/${isSignUp ? "signup" : "signin"}`,
         method: "POST",
         data: data,
         withCredentials:true

@@ -31,6 +31,7 @@ jobs:
           echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> ./apps/http-backend/.env
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > ./apps/ws-backend/.env
           echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> ./apps/ws-backend/.env
+          echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.BASE_API_URL }}" >> ./apps/frontend/.env
 
       - name: Generate Prisma Client
         run: pnpm --filter=./packages/db exec prisma generate
