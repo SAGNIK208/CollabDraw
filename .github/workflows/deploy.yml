@@ -53,8 +53,8 @@ jobs:
           #Copy Frontend
           mkdir -p deploy/frontend
           cp -r ./apps/frontend/.next/standalone/* deploy/frontend
-          cp -r ./apps/frontend/.next/static deploy/frontend/.next/
-          cp -r ./apps/frontend/public deploy/
+          cp -r ./apps/frontend/.next/static deploy/frontend/apps/frontend/.next
+          cp -r ./apps/frontend/public deploy/frontend/apps/frontend/
 
           tar -czf build.tar.gz deploy
 
