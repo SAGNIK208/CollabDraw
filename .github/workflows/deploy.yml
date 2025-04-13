@@ -49,7 +49,6 @@ jobs:
           mkdir -p deploy/ws-backend
           cp -r ./apps/ws-backend/dist deploy/ws-backend/dist
           cp ./apps/ws-backend/.env deploy/ws-backend
-          tar -czf build.tar.gz deploy
 
           #Copy Frontend
           mkdir -p deploy/frontend/standalone/.next
@@ -57,6 +56,8 @@ jobs:
           cp -r ./apps/frontend/public deploy/frontend/standalone/public
           cp -r ./apps/frontend/.next/static deploy/frontend/standalone/.next/static
           cp ./apps/frontend/package.json deploy/frontend/standalone
+
+          tar -czf build.tar.gz deploy
 
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
