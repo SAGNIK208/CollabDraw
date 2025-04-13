@@ -29,6 +29,8 @@ jobs:
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > ./packages/db/.env
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > ./apps/http-backend/.env
           echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> ./apps/http-backend/.env
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > ./apps/ws-backend/.env
+          echo "RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}" >> ./apps/ws-backend/.env
 
       - name: Generate Prisma Client
         run: pnpm --filter=./packages/db exec prisma generate
@@ -38,6 +40,7 @@ jobs:
 
       - name: Create Deployment Archive
         run: |
+          #Copy Http-backend
           mkdir -p deploy/http-backend
           cp -r ./apps/http-backend/dist deploy/http-backend/dist
           cp ./apps/http-backend/.env deploy/http-backend
@@ -68,10 +71,10 @@ jobs:
             rm -rf deploy
             tar -xzf build.tar.gz
             cd deploy/http-backend
-            mv dist/client/* dist/
+            pnpx prisma generate
 
             # Restart services
             pm2 delete http-backend || true
-            pm2 start dist/index.js --name http-backend
+            pm2 start "node --env-file=.env dist/index.js" --name http-backend
             cd ../..
           EOF
