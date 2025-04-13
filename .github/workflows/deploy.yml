@@ -51,6 +51,13 @@ jobs:
           cp ./apps/ws-backend/.env deploy/ws-backend
           tar -czf build.tar.gz deploy
 
+          #Copy Frontend
+          mkdir -p deploy/web/standalone
+          cp -r ./apps/web/.next/standalone deploy/web
+          cp -r ./apps/web/public deploy/web/standalone/public
+          cp -r ./apps/web/.next/static deploy/web/standalone/.next/static
+          cp ./apps/web/package.json deploy/web/standalone
+
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -79,8 +86,8 @@ jobs:
 
             #deploy
             cd deploy
-            mv http-backend/dist/client/* dist/
-            mv ws-backend/dist/client/* dist/
+            mv http-backend/dist/client/* http-backend/dist/
+            mv ws-backend/dist/client/* ws-backend/dist/
 
             # Restart services
             cd http-backend
@@ -91,5 +98,11 @@ jobs:
             cd ws-backend
             pm2 delete ws-backend || true
             pm2 start "node --env-file=.env dist/index.js" --name ws-backend
+            cd ..
+
+            cd web/standalone
+            pnpm install --prod --ignore-scripts
+            pm2 delete web || true
+            pm2 start "node server.js" --name web
             cd ..
           EOF
