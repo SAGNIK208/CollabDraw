@@ -44,6 +44,11 @@ jobs:
           mkdir -p deploy/http-backend
           cp -r ./apps/http-backend/dist deploy/http-backend/dist
           cp ./apps/http-backend/.env deploy/http-backend
+
+          #Copy WS-backend
+          mkdir -p deploy/ws-backend
+          cp -r ./apps/ws-backend/dist deploy/ws-backend/dist
+          cp ./apps/ws-backend/.env deploy/ws-backend
           tar -czf build.tar.gz deploy
 
       - name: Setup SSH Agent
@@ -71,12 +76,20 @@ jobs:
             # Clean old and unpack
             rm -rf deploy
             tar -xzf build.tar.gz
-            cd deploy/http-backend/dist
-            pnpx prisma generate
-            cd ..
+
+            #deploy
+            cd deploy
+            mv http-backend/dist/client/* dist/
+            mv ws-backend/dist/client/* dist/
 
             # Restart services
+            cd http-backend
             pm2 delete http-backend || true
             pm2 start "node --env-file=.env dist/index.js" --name http-backend
-            cd ../..
+            cd ..
+
+            cd ws-backend
+            pm2 delete ws-backend || true
+            pm2 start "node --env-file=.env dist/index.js" --name ws-backend
+            cd ..
           EOF
