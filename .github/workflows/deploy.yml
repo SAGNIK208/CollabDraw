@@ -65,13 +65,15 @@ jobs:
           ssh ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_IP }} << EOF
             set -e
             export PATH=\$PATH:/home/ubuntu/.nvm/versions/node/v22.14.0/bin
+            mkdir -p ${{ secrets.DEPLOY_PATH }}
             cd ${{ secrets.DEPLOY_PATH }}
 
             # Clean old and unpack
             rm -rf deploy
             tar -xzf build.tar.gz
-            cd deploy/http-backend
+            cd deploy/http-backend/dist
             pnpx prisma generate
+            cd ..
 
             # Restart services
             pm2 delete http-backend || true
