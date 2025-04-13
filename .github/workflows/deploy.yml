@@ -76,7 +76,13 @@ jobs:
         run: |
           ssh ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_IP }} << EOF
             set -e
-            export PATH=\$PATH:/home/ubuntu/.nvm/versions/node/v22.14.0/bin
+            # Prepend NVM path
+            export PATH=/home/ubuntu/.nvm/versions/node/v22.14.0/bin:\$PATH
+
+            # Optional: Verify which node is found first
+            echo "Using Node: $(node -v)"
+            echo "Node path: $(which node)"
+            
             mkdir -p ${{ secrets.DEPLOY_PATH }}
             cd ${{ secrets.DEPLOY_PATH }}
 
