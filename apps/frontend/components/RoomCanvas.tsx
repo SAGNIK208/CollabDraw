@@ -3,6 +3,7 @@
 import Canvas from "./Canvas";
 import { useState,useEffect,useRef } from "react";
 import { useRouter } from "next/navigation";
+import { BASE_WS_URL } from "@repo/common/constants"; 
 
 const RoomCanvas = ({roomId}:{roomId:string}) => {
     const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -16,7 +17,7 @@ const RoomCanvas = ({roomId}:{roomId:string}) => {
             if (reconnectRef.current) return;
             reconnectRef.current = true;
 
-            const ws = new WebSocket(`ws://localhost:8081?roomId=${roomId}`);
+            const ws = new WebSocket(`ws://${BASE_WS_URL}?roomId=${roomId}`);
 
             ws.onopen = () => {
                 console.log(`Connected to room ${roomId}`);
