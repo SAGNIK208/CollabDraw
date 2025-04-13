@@ -52,7 +52,7 @@ jobs:
 
           #Copy Frontend
           mkdir -p deploy/frontend
-          cp -r ./apps/frontend/.next/standalone/apps/frontend/* deploy/frontend
+          cp -r ./apps/frontend/.next/standalone/* deploy/frontend
           cp -r ./apps/frontend/.next/static deploy/frontend/.next/
           cp -r ./apps/frontend/public deploy/
 
@@ -82,7 +82,7 @@ jobs:
             # Optional: Verify which node is found first
             echo "Using Node: $(node -v)"
             echo "Node path: $(which node)"
-            
+
             mkdir -p ${{ secrets.DEPLOY_PATH }}
             cd ${{ secrets.DEPLOY_PATH }}
 
@@ -106,7 +106,7 @@ jobs:
             pm2 start "node --env-file=.env dist/index.js" --name ws-backend
             cd ..
 
-            cd frontend
+            cd frontend/apps/frontend
             pm2 delete frontend || true
             pm2 start "PORT=3002 node server.js" --name frontend
             cd ..
