@@ -17,7 +17,8 @@
     "@repo/db": "workspace:*"
   },
   "exports":{
-    "./*" : "./dist/publisher/*.js"
+    "./publisher/*" : "./dist/publisher/*.js",
+    "./consumer/*" : "./dist/consumer/*.js"
   },
   "keywords": [],
   "author": "",

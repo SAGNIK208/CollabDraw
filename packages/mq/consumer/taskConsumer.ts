@@ -3,7 +3,7 @@ import { TASK_QUEUE, RABBITMQ_URL } from '@repo/backend-common/config';
 import {CanvasElement} from "@repo/common/types"
 import {prisma} from "@repo/db/client";
 
-const consumeMessage = async () => {
+export const consumeMessage = async () => {
   try {
     const connection = await amqp.connect(RABBITMQ_URL);
     const channel = await connection.createChannel();
@@ -42,5 +42,3 @@ async function saveElement(element:CanvasElement,roomId:string,userId:string){
         }
     });
 }
-
-consumeMessage();

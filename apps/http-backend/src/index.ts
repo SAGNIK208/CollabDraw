@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/authRoutes";
 import roomRouter from "./routes/roomRoutes";
+import {consumeMessage} from "@repo/mq/consumer/taskConsumer";
 const app = express();
 const PORT = process.env.port || 8080;
 
@@ -30,5 +31,6 @@ app.use("/api/auth",authRouter);
 app.use("/api/room",roomRouter);
 
 app.listen((PORT),()=>{
+    consumeMessage();
     console.log(`Server is up and running at port ${PORT}`);
 });

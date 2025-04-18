@@ -5,7 +5,7 @@ import {JWT_SECRET} from "@repo/backend-common/config";
 import {CreateCanvasElementSchema,CanvasElement} from "@repo/common/types";
 import {prisma} from "@repo/db/client";
 import { IncomingMessage,Server,createServer } from "http";
-import {publishMessage} from "@repo/mq/taskPublisher";
+import {publishMessage} from "@repo/mq/publisher/taskPublisher";
 import * as cookie from "cookie";
 
 
