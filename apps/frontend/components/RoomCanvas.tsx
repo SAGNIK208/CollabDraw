@@ -17,7 +17,7 @@ const RoomCanvas = ({roomId}:{roomId:string}) => {
             if (reconnectRef.current) return;
             reconnectRef.current = true;
 
-            const ws = new WebSocket(`ws://${BASE_WS_URL}?roomId=${roomId}`);
+            const ws = new WebSocket(`wss://${BASE_WS_URL}?roomId=${roomId}`);
 
             ws.onopen = () => {
                 console.log(`Connected to room ${roomId}`);

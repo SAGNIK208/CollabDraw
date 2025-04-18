@@ -8,7 +8,7 @@ import { createRoom, deleteRoom } from "../lib/rooms"; // API functions
 import { Layout } from "./Layout"; // Main Layout wrapper
 import { RoomCard } from "./RoomCard"; // Room Card component
 import { Button } from "@repo/ui/button"; // Button component
-import { CreateRoomModal } from './CreateRoomModal'; // Import the modal component
+import { CreateRoomModal } from "./CreateRoomModal"; // Import the modal component
 
 const RoomLayout = ({ initialRooms }: { initialRooms: RoomType[] }) => {
   const [rooms, setRooms] = useState<RoomType[]>(initialRooms);
@@ -32,7 +32,7 @@ const RoomLayout = ({ initialRooms }: { initialRooms: RoomType[] }) => {
     try {
       const room = await createRoom(name.trim()); // Assume createRoom handles API call
       if (room) {
-         // Use functional update for state based on previous state
+        // Use functional update for state based on previous state
         setRooms((prevRooms) => [...prevRooms, room]);
         handleCloseModal(); // Close modal on success
       } else {
@@ -42,8 +42,10 @@ const RoomLayout = ({ initialRooms }: { initialRooms: RoomType[] }) => {
     } catch (error) {
       console.error("Failed to create room:", error);
       // Re-throw the error to be caught and displayed by the modal's error handling
-      if(error instanceof Error){
-        throw new Error(error.message || "An unknown error occurred during room creation.");
+      if (error instanceof Error) {
+        throw new Error(
+          error.message || "An unknown error occurred during room creation."
+        );
       }
     }
   };
@@ -67,7 +69,7 @@ const RoomLayout = ({ initialRooms }: { initialRooms: RoomType[] }) => {
   const handleJoinRoom = () => {
     const trimmedRoomId = roomIdInput.trim();
     if (trimmedRoomId) {
-      router.push(`/canvas/${trimmedRoomId}`); // Navigate to canvas view for joining
+      router.push(`/rooms/${trimmedRoomId}`); // Navigate to canvas view for joining
     } else {
       alert("Please enter a Room ID.");
     }
@@ -92,12 +94,9 @@ const RoomLayout = ({ initialRooms }: { initialRooms: RoomType[] }) => {
   return (
     <Layout>
       <div className="min-h-[calc(100vh-140px)] flex flex-col md:flex-row bg-gradient-to-br from-blue-100 to-blue-200 p-8 md:p-10 gap-8">
-
         {/* Left: Room List */}
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6">
-            Your Rooms
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-6">Your Rooms</h1>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {/* Map existing rooms */}
             {rooms.map((room) => (
@@ -111,38 +110,40 @@ const RoomLayout = ({ initialRooms }: { initialRooms: RoomType[] }) => {
             ))}
             {/* Add Room Card - Triggers Modal */}
             <RoomCard
-                isAddCard={true}
-                onClick={openCreateRoomModal} // Updated onClick
+              isAddCard={true}
+              onClick={openCreateRoomModal} // Updated onClick
             />
           </div>
         </div>
 
         {/* Right: Logout Button + Join Room Panel */}
         <div className="w-full md:w-80 flex flex-col gap-5 items-stretch mt-6 md:mt-0">
-           {/* Logout Button */}
-           <Button
-             label="Logout"
-             variant="logout"
-             onClick={handleLogout}
-             className="w-auto self-center md:self-end"
-           />
-           {/* Join Room Panel */}
-           <div className="bg-white rounded-xl shadow-lg p-6 flex-grow flex flex-col">
-             <h2 className="text-2xl font-semibold mb-5 text-gray-800">Join Room</h2>
-             <input
-               type="text"
-               className="w-full p-3 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-1"
-               placeholder="Enter Room ID"
-               value={roomIdInput}
-               onChange={(e) => setRoomIdInput(e.target.value)}
-             />
-             <Button
-               label="Join"
-               variant="primary"
-               onClick={handleJoinRoom}
-               className="w-full py-2.5" // Removed mt-auto previously
-             />
-           </div>
+          {/* Logout Button */}
+          <Button
+            label="Logout"
+            variant="logout"
+            onClick={handleLogout}
+            className="w-auto self-center md:self-end"
+          />
+          {/* Join Room Panel */}
+          <div className="bg-white rounded-xl shadow-lg p-6 flex-grow flex flex-col">
+            <h2 className="text-2xl font-semibold mb-5 text-gray-800">
+              Join Room
+            </h2>
+            <input
+              type="text"
+              className="w-full p-3 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-1"
+              placeholder="Enter Room ID"
+              value={roomIdInput}
+              onChange={(e) => setRoomIdInput(e.target.value)}
+            />
+            <Button
+              label="Join"
+              variant="primary"
+              onClick={handleJoinRoom}
+              className="w-full py-2.5" // Removed mt-auto previously
+            />
+          </div>
         </div>
       </div>
 
