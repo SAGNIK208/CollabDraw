@@ -26,7 +26,7 @@ export const HeroSection: React.FC<HeroProps> = ({ title, subtitle, primaryActio
           </div>
         </div>
         <div className="mt-12 md:mt-0 flex justify-center w-full md:w-1/2">
-          <Image src="/CollabDraw/paintbrush.svg" alt="Paintbrush" width={400} height={400} className="w-full max-w-lg md:max-w-xl" />
+          <Image src="/paintbrush.svg" alt="Paintbrush" width={400} height={400} className="w-full max-w-lg md:max-w-xl" />
         </div>
       </section>
     );
