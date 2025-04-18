@@ -8,7 +8,7 @@ const PORT = process.env.port || 8080;
 
 app.use(express.json());
 const allowedOrigins = [
-    'http://16.170.215.122',
+    'https://collabdraw.sagnik-dev.com',
     'http://localhost:3002'
 ];
 const corsOptions = {
